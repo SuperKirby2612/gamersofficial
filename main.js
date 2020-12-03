@@ -1,7 +1,7 @@
 const Discord = require('discord.js');
 
 const client = new Discord.Client();
-
+const config = require('./config.json')
 const prefix = '-g '
 
 const fs = require('fs');
@@ -21,6 +21,7 @@ client.once('ready', () => {
     console.log('GamersOfficial is online!')
     });
 
+
 client.on('message', (message) => {
         if (!message.content.startsWith(prefix) || message.author.bot)
             return;
@@ -36,8 +37,8 @@ client.on('message', (message) => {
                 client.commands.get('wipe').execute(message, args);
         
         }
-    
     });
 
+client.login(config.token)
 
 
