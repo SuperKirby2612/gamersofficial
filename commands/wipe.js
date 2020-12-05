@@ -44,11 +44,11 @@ module.exports = {
                 collected.forEach((value) => {
                     console.log(`Logged the name of the channel!`)
                     const ChNm = (questions, value.content)
-            })
+            
             const fetchedChannel = (message.guild.channels.cache.find(channel => channel.name === ChNm).id)
             console.log(fetchedChannel)
-            DiscordjS.GuildChannel.clone(fetchedChannel)
-            DiscordjS.GuildChannel.delete(fetchedChannel)
+            channel.delete(fetchedChannel)
+        })
         }
             )
                                 
