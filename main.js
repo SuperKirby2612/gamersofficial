@@ -35,10 +35,18 @@ client.on('message', (message) => {
         client.commands.get('ping').execute(message, args);
     } else if (command === 'wipe') {
         client.commands.get('wipe').execute(message, args);
+    } else if (command === 'cheese') {
+        client.commands.get('cheese').execute(message, args);
+    } else if (command === 'lock') {
+        client.commands.get('lock').execute(message, args)
+    } else if (command === 'doggo') {
+        client.commands.get('doggo').execute(message, args)
+    } else if (command === 'cat') {
+        client.commands.get('cat').execute(message, args)
+    } else if (command === 'bobr') {
+        client.commands.get('bobr').execute(message, args)
+    } else if (command === 'unicorn') {
+        client.commands.get('unicorn').execute(message, args)
     }
-      else if (command === 'cheese') {
-      client.commands.get('cheese').execute(message, args);
-      }
-});
-
+})
 client.login(config.token)
