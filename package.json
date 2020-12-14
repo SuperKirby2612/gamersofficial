@@ -9,8 +9,12 @@
   "author": "Super Kirby",
   "license": "ISC",
   "dependencies": {
+    "@discordjs/opus": "^0.3.3",
     "discord.js": "^12.5.1",
+    "discord.js-commando": "^0.10.0",
+    "ffmpeg-static": "^4.2.7",
     "superagent": "^6.1.0",
+    "watson-speech": "^0.38.1",
     "wokcommands": "github:AlexzanderFlores/WOKCommands#dev"
   }
 }

@@ -47,6 +47,11 @@ client.on('message', (message) => {
         client.commands.get('bobr').execute(message, args)
     } else if (command === 'unicorn') {
         client.commands.get('unicorn').execute(message, args)
+    } else if (command === 'amongus') {
+        client.commands.get('amongus').execute(message, args)
+    } else if (command === 'bruh') {
+        client.commands.get('bruh').execute(message, args)
     }
+
 })
 client.login(config.token)
