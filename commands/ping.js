@@ -1,7 +1,10 @@
+const Discord = require('discord.js')
+
 module.exports = {
     name: 'ping',
     description: "this is a ping command!",
-    execute(message, args) {
+    category: 'Fun',
+    async execute(message, args, client, instance) {
         message.channel.send('pong!');
     }
 }

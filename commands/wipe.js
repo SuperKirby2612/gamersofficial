@@ -1,14 +1,13 @@
 module.exports = {
-
     name: 'wipe',
     description: "This command logs and wipes a channel (MOD ONLY). Syntax: -g wipe",
+    category: 'Moderation',
+    cooldown: '1m',
     async execute(message, args) {
 
         const member = message.guild.member(message.author);
 
-        if(!message.guild.member(message.author).hasPermission('ADMINISTRATOR')) {
-            return message.reply("You don't have the correct permissions!")
-          }
+        if (!message.member.hasPermission("MANAGE_CHANNELS")) return message.channel.send('Sorry, you don\'t have the correct permissions to do that! `(MANAGE CHANNELS)`')
 
         message.channel.send('To continue wiping, please react to this message with 👍 or react with 👎 to cancel.')
 
@@ -31,7 +30,7 @@ module.exports = {
                         fetchedChannel.clone(undefined, true, false, 'Needed a clone')
                             .then(clone => {
                                 const ClonedChannelID = clone.id
-                                const messageforclone = `Go to ${message.member.guild.channels.cache.get(ClonedChannelID)} (The new, wiped channel). This channel; (${fetchedChannel.name}) will be deleted in 10 seconds!`
+                                const messageforclone = `Go to ${message.member.guild.channels.cache.get(ClonedChannelID)} (The new, wiped channel). This channel (${fetchedChannel.name}) will be deleted in 10 seconds!`
                                 message.channel.send(messageforclone)
                                 setTimeout(() => {
                                     fetchedChannel.delete();

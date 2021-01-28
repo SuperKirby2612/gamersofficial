@@ -2,3 +2,7 @@ node_modules
 config.json
 .git
 settings.json
+.env
+json.sqlite
+perspective.json
+db.js
