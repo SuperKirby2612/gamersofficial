@@ -73,7 +73,7 @@ const Discord = require('discord.js'),
     })
 const PREFIX = "-g"
 const mongoose = require('mongoose')
-mongoose.connect(MONGOOSE_TOK, {
+mongoose.connect(process.env.MONGO_URI, {
     useNewUrlParser: true,
     useUnifiedTopology: true
 })
@@ -93,7 +93,7 @@ const opts = {
 }
 const Levels = require('discord-xp')
 
-Levels.setURL(MONGOOSE_TOK)
+Levels.setURL(process.env.MONGO_URI)
 
 const WOKcommands = require('wokcommands')
 
@@ -132,7 +132,7 @@ const distube = new Distube(client, {
 client.on('ready', () => {
     console.log(`Logged in as ${client.user.tag}!`)
     new WOKcommands(client, 'commands', 'features')
-        .setMongoPath(MONGOOSE_TOK)
+        .setMongoPath(process.env.MONGO_URI)
         .setDefaultPrefix('-g ')
     client.api.applications(client.user.id).commands.post({
         data: {
@@ -180,7 +180,7 @@ client.on('ready', () => {
         })
     }, Math.floor(Math.random() * 119 * 1000) + 1)
 });
-client.login(DISCORD_TOK)
+client.login(process.env.discord_token)
 
 distube
     .on("playSong", (message, queue, song) => {
