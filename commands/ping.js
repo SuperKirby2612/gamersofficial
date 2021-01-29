@@ -1,4 +1,5 @@
 const Discord = require('discord.js')
+const giphyRandom = require('giphy-random')
 
 module.exports = {
     name: 'ping',

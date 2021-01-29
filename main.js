@@ -156,7 +156,7 @@ client.on('ready', () => {
                 name: "category",
                 description: 'Options: youtube, donation, discord',
                 type: 3,
-                required: false
+                required: true
             }]
         }
     });

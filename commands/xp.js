@@ -1,5 +1,6 @@
 const Discord = require('discord.js')
 const Levels = require('discord-xp')
+const giphyRandom = require('giphy-random')
 
 module.exports = {
     name: 'xp',
@@ -10,7 +11,8 @@ module.exports = {
         if (message.author.bot) return;
         if (authorid === undefined || null) {
             var authorid = message.author.id
-        } if (guildid === undefined || null) {
+        }
+        if (guildid === undefined || null) {
             var guildid = message.guild.id
         }
         const randomXp = Math.floor(Math.random() * 9) + 1
@@ -18,6 +20,15 @@ module.exports = {
         if (hasLeveledUp) {
             const user = await Levels.fetch(authorid, guildid)
             const userid = authorid
+            var yaygifdata = await giphyRandom(process.env.GIPHY_API_TOKEN, [{
+                tag: 'yay',
+                rating: 'g'
+            }])
+            if (yaygifdata.data.type !== 'gif') {
+                var yaygif = 'https://i.giphy.com/media/TdfyKrN7HGTIY/giphy.gif'
+            } else {
+                var yaygif = yaygifdata.data.image_original_url
+            }
             var LevelUpEmbed = new Discord.MessageEmbed()
                 .setTitle('Level up!')
                 .setColor('GREEN')
@@ -25,8 +36,8 @@ module.exports = {
                     name: "Well done!",
                     value: `You just advanced to level \`${user.level}\`, <@${userid}>!`
                 })
-                .setThumbnail('http://images.hellogiggles.com/uploads/2015/01/05/spongebob.jpg')
-                .setFooter('XP: You get XP by messaging on this discord server, spamming will not give you XP!')
+                .setThumbnail(yaygif)
+                .setFooter('XP: You get XP by messaging on this discord server, spamming will not give you XP! GIFs are powered by GIPHY')
             message.channel.send(LevelUpEmbed)
         }
     }
