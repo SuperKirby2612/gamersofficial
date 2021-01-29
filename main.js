@@ -46,9 +46,6 @@ function sleep(ms) {
     });
 }
 
-
-const SETTINGS_FILE = 'settings.json';
-
 let DISCORD_TOK = null;
 let witAPIKEY = null;
 let MONGOOSE_TOK = null;
@@ -56,15 +53,6 @@ let GOOGLE_TOK = null;
 let SPOTIFY_TOKEN_ID = null;
 let SPOTIFY_TOKEN_SECRET = null;
 
-function loadConfig() {
-    const CFG_DATA = JSON.parse(fs.readFileSync(SETTINGS_FILE, 'utf8'));
-
-    DISCORD_TOK = process.env.discord_token
-    witAPIKEY = CFG_DATA.wit_ai_token;
-    MONGOOSE_TOK = process.env.MONGO_URI
-    GOOGLE_TOK = process.env.googletok
-}
-loadConfig()
 // My Part //
 const Discord = require('discord.js'),
     Distube = require('distube'),
@@ -88,7 +76,7 @@ const {
 } = require('process');
 const opts = {
     MaxResults: 1,
-    key: SETTINGS_FILE.YOUTUBE_TOKEN,
+    key: process.env.YOUTUBE_TOKEN,
     type: 'video'
 }
 const Levels = require('discord-xp')
