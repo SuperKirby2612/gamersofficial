@@ -101,7 +101,7 @@ const dig = require('discord-image-generation')
 
 const texttoimage = require('text-to-image')
 
-const swearjar = require('swearjar')
+const swearjar = require('swearjar_modified')
 
 client.commands = new Discord.Collection();
 
@@ -131,7 +131,19 @@ client.on('ready', () => {
                 name: "category",
                 description: 'Options: moderation, fun, misc',
                 type: 3,
-                required: true
+                required: true,
+                choices: [{
+                        name: 'moderation',
+                        value: 'help_moderation'
+                    },
+                    {
+                        name: 'fun',
+                        value: 'help_fun'
+                    }, {
+                        name: 'misc',
+                        value: 'help_misc'
+                    }
+                ]
             }]
         }
     });
@@ -146,6 +158,19 @@ client.on('ready', () => {
                 type: 3,
                 required: true
             }]
+        }
+    });
+    client.api.applications(client.user.id).guilds('760129849154338827').commands.post({
+        data: {
+            name: 'whois',
+            description: "Gives information on a user.",
+
+            options: [{
+                name: "user",
+                description: "User that you want information on.",
+                type: 6,
+                required: true,
+            },]
         }
     });
     setInterval(() => {
@@ -302,8 +327,7 @@ client.on('message', async (message) => {
         }
     })
 client.on('voiceStateUpdate', (oldMember, newMember) => {
-    if (oldMember.channelID !== null && newMember.channelID === null) {
-    }
+    if (oldMember.channelID !== null && newMember.channelID === null) {}
 })
 client.on('message', (message) => {
     if (message.author.bot) return;
@@ -600,6 +624,7 @@ client.ws.on('INTERACTION_CREATE', async (interaction) => {
     const args = interaction.data.options
 
     if (command === 'help') {
+        console.log(interaction)
         const description = args.find(arg => arg.name.toLowerCase() === 'category').value
         const recon = require('reconlx')
         const ReactionPages = recon.ReactionPages
@@ -665,6 +690,13 @@ client.ws.on('INTERACTION_CREATE', async (interaction) => {
         } else if (description === 'discord') {
             sendMessage(interaction, 'Hey, thanks for being interested, here is a cool discord server: https://www.discord.gg/H3UmmggFYs')
         }
+    } else if (command === 'whois') {
+        const userid = args.find(arg => arg.name.toLowerCase() === 'user').value
+        const user = client.users.cache.get(userid);
+        const guild = client.guilds.cache.get(interaction.guild_id)
+        const member = guild.members.cache.get(user)
+        const channel = guild.channels.cache.get(interaction.channel_id)
+        console.log(description)
     }
 })
 async function createAPIMessage(interaction, content) {
