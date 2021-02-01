@@ -32,7 +32,7 @@ module.exports = {
             .addField('Humidity', `${current.humidity}%`, true)
             .addField('Timezone', `${location.timezone}`, true)
             .addField('Temp', `${current.temperature}°${degreetype1}`, true)
-            .addField('Observation time', current.observationpoint, true)
+            .addField('Observation Point', current.observationpoint, true)
 
             return message.channel.send(weatherembed)
         })

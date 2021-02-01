@@ -4,7 +4,8 @@
   "description": "Just a bot",
   "main": "main.js",
   "scripts": {
-    "start": "node main.js"
+    "start": "node main.js",
+    "send":"git add . && git commit && git push"
   },
   "author": "Super Kirby",
   "license": "ISC",

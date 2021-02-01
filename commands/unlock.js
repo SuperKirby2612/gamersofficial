@@ -1,4 +1,5 @@
 const Discord = require('discord.js')
+const db = require('../db')
 
 module.exports = {
 
@@ -11,15 +12,17 @@ module.exports = {
 
         let lockchannel = message.mentions.channels.first() || message.channel
 
+        if (!await db.has(`lock-${message.guild.id}-${lockchannel.id}`)) return message.channel.send('That channel isn\'t locked!')
+
         let lockrole = message.mentions.roles.first() || message.guild.roles.everyone.id
         
         const unlockembed = new Discord.MessageEmbed()
         .setColor('#ff0000')
         .setTitle('🔓 CHANNEL UNLOCKED 🔓')
-        .setDescription(`Successfully unlocked the channel \`${lockchannel.name}\` to \`@everyone\`.`)
+        .setDescription(`Successfully unlocked the channel \`${lockchannel.name}\` to \`${lockrole.name}\`.`)
         
         lockchannel.updateOverwrite(lockrole, { SEND_MESSAGES: true });
-        
+        db.delete(`lock-${message.guild.id}-${lockchannel.id}`)
         message.channel.send(unlockembed)
     }
 }

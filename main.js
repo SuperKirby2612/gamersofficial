@@ -101,6 +101,10 @@ const dig = require('discord-image-generation')
 
 const texttoimage = require('text-to-image')
 
+const request = require('node-superfetch')
+
+const weather = require('weather-js')
+
 const swearjar = require('swearjar_modified')
 
 client.commands = new Discord.Collection();
@@ -131,19 +135,7 @@ client.on('ready', () => {
                 name: "category",
                 description: 'Options: moderation, fun, misc',
                 type: 3,
-                required: true,
-                choices: [{
-                        name: 'moderation',
-                        value: 'help_moderation'
-                    },
-                    {
-                        name: 'fun',
-                        value: 'help_fun'
-                    }, {
-                        name: 'misc',
-                        value: 'help_misc'
-                    }
-                ]
+                required: true
             }]
         }
     });
@@ -160,7 +152,7 @@ client.on('ready', () => {
             }]
         }
     });
-    client.api.applications(client.user.id).guilds('760129849154338827').commands.post({
+    client.api.applications(client.user.id).commands.post({
         data: {
             name: 'whois',
             description: "Gives information on a user.",
@@ -170,7 +162,69 @@ client.on('ready', () => {
                 description: "User that you want information on.",
                 type: 6,
                 required: true,
-            },]
+            }, ]
+        }
+    });
+    client.api.applications(client.user.id).commands.post({
+        data: {
+            name: 'wikisearch',
+            description: "Searches a query on the wiki, if a wiki page is not found, the next best result will be sent..",
+
+            options: [{
+                name: "query",
+                description: "Query that you want to search on Wikipedia",
+                type: 3,
+                required: true,
+            }, ]
+        }
+    });
+    client.api.applications(client.user.id).commands.post({
+        data: {
+            name: 'weather',
+            description: "Sends the current weather of a city.",
+
+            options: [{
+                name: "city",
+                description: "City that you want the weather of.",
+                type: 3,
+                required: true,
+            }, ]
+        }
+    });
+    client.api.applications(client.user.id).commands.post({
+        data: {
+            name: 'unlock',
+            description: "Unlocks a specified locked channel to the linked locked role (and any role lower).",
+
+            options: [{
+                name: "channel",
+                description: "Channel that you want to unlock.",
+                type: 7,
+                required: true,
+            }, {
+                name: 'role',
+                description: 'Role of which you want to unlock the channel to.',
+                type: 8,
+                required: true
+            }]
+        }
+    });
+    client.api.applications(client.user.id).commands.post({
+        data: {
+            name: 'lock',
+            description: "Locks a specified channel to a specified role (and any role lower).",
+
+            options: [{
+                name: "channel",
+                description: "Channel that you want to lock.",
+                type: 7,
+                required: true,
+            }, {
+                name: 'role',
+                description: 'Role of which you want to lock the channel to.',
+                type: 8,
+                required: true
+            }]
         }
     });
     setInterval(() => {
@@ -691,12 +745,191 @@ client.ws.on('INTERACTION_CREATE', async (interaction) => {
             sendMessage(interaction, 'Hey, thanks for being interested, here is a cool discord server: https://www.discord.gg/H3UmmggFYs')
         }
     } else if (command === 'whois') {
-        const userid = args.find(arg => arg.name.toLowerCase() === 'user').value
+        const userid1 = args.find(arg => arg.name.toLowerCase() === 'user').value
+        const user1 = client.users.cache.get(userid1);
+        const guild1 = client.guilds.cache.get(interaction.guild_id)
+        const member1 = guild1.member(user1)
+        const channel1 = guild1.channels.cache.get(interaction.channel_id)
+        let usercreated = user1.createdTimestamp
+        const HighestRole = member1.roles.highest
+        const nitroboost = new Date(member1.premiumSinceTimestamp).toLocaleDateString()
+        if (nitroboost !== '1/1/1970') {
+            var nitroboost1 = new Date(member1.premiumSinceTimestamp).toLocaleDateString()
+        }
+        if (member1.bannable) {
+            var banemoji = '✅'
+        }
+        if (member1.hasPermission('BAN_MEMBERS')) {
+            var adminemoji = '✅'
+        }
+        if (user1.bot) {
+            var botemoji = '✅'
+        }
+        if (user1.flags.toArray().includes('HOUSE_BRAVERY')) {
+            var HypeSquad1 = 'Bravery'
+        } else if (user1.flags.toArray().includes('HOUSE_BRILLIANCE')) {
+            var HypeSquad2 = 'Brilliance'
+        } else if (user1.flags.toArray().includes('HOUSE_BALANCE')) {
+            var HypeSquad3 = 'Balance'
+        }
+        var flags0 = user1.flags.toArray()
+        var realflags = arrayRemove(flags0, 'HOUSE_BRAVERY', 'HOUSE_BRRILLIANCE', 'HOUSE_BALANCE')
+        let realflagsnone = null;
+        if (realflags = []) {
+            let realflagsnone = 'None'
+        }
+        const usercolor = member1.displayHexColor
+        const whoisembed = new Discord.MessageEmbed()
+            .setAuthor(`User Info for ${user1.username}`, user1.displayAvatarURL())
+            .setColor(usercolor)
+            .setTitle('User Info')
+            .addFields({
+                name: 'Nametag',
+                value: user1.username + '#' + user1.discriminator,
+                inline: true,
+            }, {
+                name: 'Nickname',
+                value: member1.nickname || 'None',
+                inline: true,
+            }, {
+                name: 'Bot',
+                value: botemoji || '❌',
+                inline: true,
+            }, {
+                name: 'Server Join Date',
+                value: new Date(member1.joinedTimestamp).toLocaleDateString(),
+                inline: true,
+            }, {
+                name: 'Discord Join Date',
+                value: new Date(user1.createdTimestamp).toLocaleDateString(),
+                inline: true,
+            }, {
+                name: 'Nitro Boost Date',
+                value: nitroboost1 || 'Hasnt boosted',
+                inline: true,
+            }, {
+                name: 'Bannable',
+                value: banemoji || '❌',
+                inline: true,
+            }, {
+                name: 'Admin',
+                value: adminemoji || '❌',
+                inline: true,
+            }, {
+                name: 'Highest Role',
+                value: `${HighestRole.name}` || 'This user does not have any roles',
+                inline: true,
+            }, {
+                name: 'Status',
+                value: member1.presence.status.toUpperCase(),
+                inline: true,
+            }, {
+                name: 'HypeSquad',
+                value: HypeSquad1 || HypeSquad2 || HypeSquad3 || 'None',
+                inline: true,
+            }, )
+
+        channel1.send(whoisembed)
+
+    } else if (command === 'wikisearch') {
+        const guild1 = client.guilds.cache.get(interaction.guild_id)
+        const channel1 = guild1.channels.cache.get(interaction.channel_id)
+
+        let wikigoogleKey = process.env.googlewikitok
+        let csx = "b8ae984500dc84811"
+        let query = args.find(arg => arg.name.toLowerCase() === 'query').value
+        let result;
+
+        let href = await wikisearch(query, interaction, wikigoogleKey, csx)
+
+        const wikisearchembed = new Discord.MessageEmbed()
+        .setTitle(href.title)
+        .setDescription(href.snippet)
+        .setImage(href.pagemap && href.pagemap.cse_thumbnail ? href.pagemap.cse_thumbnail[0].src : null)
+        .setURL(href.link)
+        .setColor("GREEN")
+        .setFooter("Powered by Google™ and WikiPedia™")
+
+        sendMessage(interaction, wikisearchembed)
+    } else if (command === 'weather') {
+        let city = args.find(arg => arg.name.toLowerCase() === 'city').value
+        let degreetype = 'C'
+
+        await weather.find({search: city, degreeType: degreetype}, function(err, result) {
+            if (!city) return sendMessage(interaction, 'Please specify the city!')
+            if (err || result === undefined || result.length === 0) return sendMessage(interaction, 'Sorry, I don\'t recognize that city, try being less specific!')
+
+            let current = result[0].current
+            let location = result[0].location
+
+            let degreetype1 = location.degreetype 
+
+            const weatherembed = new Discord.MessageEmbed()
+            .setAuthor(current.observationpoint)
+            .setDescription(`${current.skytext}`)
+            .setThumbnail(current.imageUrl)
+            .setTimestamp()
+            .setColor(0x7289DA)
+
+            weatherembed.addField("Latitude", location.lat, true)
+            .addField("Longitude", location.long, true)
+            .addField('Feels like', `${current.feelslike}°${degreetype1}`, true)
+            .addField('Wind', current.winddisplay, true)
+            .addField('Humidity', `${current.humidity}%`, true)
+            .addField('Timezone', `${location.timezone}`, true)
+            .addField('Temp', `${current.temperature}°${degreetype1}`, true)
+            .addField('Observation Point', current.observationpoint, true)
+
+            return sendMessage(interaction, weatherembed)
+        })
+    } else if (command === 'unlock') {
+        const userid = interaction.member.user.id
         const user = client.users.cache.get(userid);
         const guild = client.guilds.cache.get(interaction.guild_id)
-        const member = guild.members.cache.get(user)
+        const member = guild.member(user)
         const channel = guild.channels.cache.get(interaction.channel_id)
-        console.log(description)
+        if (!member.hasPermission("MANAGE_CHANNELS")) return sendMessage(interaction, 'Sorry, you don\'t have the correct permissions to do that! `(MANAGE CHANNELS)`')
+
+        let lockchannel = guild.channels.cache.get(args.find(arg => arg.name.toLowerCase() === 'channel').value)
+
+        if (!await db.has(`lock-${guild.id}-${lockchannel.id}`)) return sendMessage(interaction, 'That channel isn\'t locked!')
+
+        let lockrole = guild.roles.cache.get(args.find(arg => arg.name.toLowerCase() === 'role').value)
+        
+        const unlockembed = new Discord.MessageEmbed()
+        .setColor('#ff0000')
+        .setTitle('🔓 CHANNEL UNLOCKED 🔓')
+        .setDescription(`Successfully unlocked the channel \`${lockchannel.name}\` to \`${lockrole.name}\`.`)
+        
+        lockchannel.updateOverwrite(lockrole, { SEND_MESSAGES: true });
+
+        db.delete(`lock-${guild.id}-${lockchannel.id}`)
+        
+        sendMessage(interaction, unlockembed)
+    } else if (command === 'lock') {
+        const userid = interaction.member.user.id
+        const user = client.users.cache.get(userid);
+        const guild = client.guilds.cache.get(interaction.guild_id)
+        const member = guild.member(user)
+        const channel = guild.channels.cache.get(interaction.channel_id)
+        if (!member.hasPermission("MANAGE_CHANNELS")) return sendMessage(interaction, 'Sorry, you don\'t have the correct permissions to do that! `(MANAGE CHANNELS)`')
+
+        let lockchannel = guild.channels.cache.get(args.find(arg => arg.name.toLowerCase() === 'channel').value)
+
+        if (await db.has(`lock-${guild.id}-${lockchannel.id}`)) return sendMessage(interaction, 'That channel is already locked!')
+
+        let lockrole = guild.roles.cache.get(args.find(arg => arg.name.toLowerCase() === 'role').value)
+        
+        const lockembed = new Discord.MessageEmbed()
+        .setColor('#ff0000')
+        .setTitle('🔒 CHANNEL LOCKED 🔒')
+        .setDescription(`Successfully locked the channel \`${lockchannel.name}\` to \`${lockrole.name}\`. To unlock the channel, just say -g unlock (or /unlock) and if you mentioned a channel or role, remember to re-mention it in the unlock command!`)
+        
+        lockchannel.updateOverwrite(lockrole, { SEND_MESSAGES: false });
+
+        db.set(`lock-${guild.id}-${lockchannel.id}`, true)
+        
+        sendMessage(interaction, lockembed)
     }
 })
 async function createAPIMessage(interaction, content) {
@@ -714,4 +947,21 @@ async function sendMessage(interaction, content) {
     client.channels.fetch(channelid).then(channel => {
         channel.send(content)
     }).catch(console.error)
+}
+function arrayRemove(arr, value) {
+
+    return arr.filter(function (ele) {
+        return ele != value;
+    });
+}
+async function wikisearch(query, interaction, googleKey, csx) {
+    const { body } = await request.get("https://www.googleapis.com/customsearch/v1/siterestrict?https://wikipedia.org").query({
+        key: googleKey, cx: csx, safe: "off", q: query
+    })
+
+    if(!body.items) {
+        sendMessage(interaction, 'Sorry, I couldn\'t find anything on wikipedia that matches your query!')
+        return null
+    }
+    return body.items[0]
 }
