@@ -65,7 +65,6 @@ mongoose.connect(process.env.MONGO_URI, {
     useNewUrlParser: true,
     useUnifiedTopology: true
 })
-const search = require('youtube-search')
 const got = require('got')
 const covid = require('novelcovid')
 const {
@@ -209,22 +208,17 @@ client.on('ready', () => {
             }]
         }
     });
-    client.api.applications(client.user.id).commands.post({
+    client.api.applications(client.user.id).guilds('760129849154338827').commands.post({
         data: {
-            name: 'lock',
-            description: "Locks a specified channel to a specified role (and any role lower).",
+            name: 'search',
+            description: "Searches a query on google.",
 
             options: [{
-                name: "channel",
-                description: "Channel that you want to lock.",
-                type: 7,
+                name: "query",
+                description: "Query that you want to search on Google",
+                type: 3,
                 required: true,
-            }, {
-                name: 'role',
-                description: 'Role of which you want to lock the channel to.',
-                type: 8,
-                required: true
-            }]
+            }, ]
         }
     });
     setInterval(() => {
@@ -843,42 +837,45 @@ client.ws.on('INTERACTION_CREATE', async (interaction) => {
         let href = await wikisearch(query, interaction, wikigoogleKey, csx)
 
         const wikisearchembed = new Discord.MessageEmbed()
-        .setTitle(href.title)
-        .setDescription(href.snippet)
-        .setImage(href.pagemap && href.pagemap.cse_thumbnail ? href.pagemap.cse_thumbnail[0].src : null)
-        .setURL(href.link)
-        .setColor("GREEN")
-        .setFooter("Powered by Google™ and WikiPedia™")
+            .setTitle(href.title)
+            .setDescription(href.snippet)
+            .setImage(href.pagemap && href.pagemap.cse_thumbnail ? href.pagemap.cse_thumbnail[0].src : null)
+            .setURL(href.link)
+            .setColor("GREEN")
+            .setFooter("Powered by Google™ and WikiPedia™")
 
         sendMessage(interaction, wikisearchembed)
     } else if (command === 'weather') {
         let city = args.find(arg => arg.name.toLowerCase() === 'city').value
         let degreetype = 'C'
 
-        await weather.find({search: city, degreeType: degreetype}, function(err, result) {
+        await weather.find({
+            search: city,
+            degreeType: degreetype
+        }, function (err, result) {
             if (!city) return sendMessage(interaction, 'Please specify the city!')
             if (err || result === undefined || result.length === 0) return sendMessage(interaction, 'Sorry, I don\'t recognize that city, try being less specific!')
 
             let current = result[0].current
             let location = result[0].location
 
-            let degreetype1 = location.degreetype 
+            let degreetype1 = location.degreetype
 
             const weatherembed = new Discord.MessageEmbed()
-            .setAuthor(current.observationpoint)
-            .setDescription(`${current.skytext}`)
-            .setThumbnail(current.imageUrl)
-            .setTimestamp()
-            .setColor(0x7289DA)
+                .setAuthor(current.observationpoint)
+                .setDescription(`${current.skytext}`)
+                .setThumbnail(current.imageUrl)
+                .setTimestamp()
+                .setColor(0x7289DA)
 
             weatherembed.addField("Latitude", location.lat, true)
-            .addField("Longitude", location.long, true)
-            .addField('Feels like', `${current.feelslike}°${degreetype1}`, true)
-            .addField('Wind', current.winddisplay, true)
-            .addField('Humidity', `${current.humidity}%`, true)
-            .addField('Timezone', `${location.timezone}`, true)
-            .addField('Temp', `${current.temperature}°${degreetype1}`, true)
-            .addField('Observation Point', current.observationpoint, true)
+                .addField("Longitude", location.long, true)
+                .addField('Feels like', `${current.feelslike}°${degreetype1}`, true)
+                .addField('Wind', current.winddisplay, true)
+                .addField('Humidity', `${current.humidity}%`, true)
+                .addField('Timezone', `${location.timezone}`, true)
+                .addField('Temp', `${current.temperature}°${degreetype1}`, true)
+                .addField('Observation Point', current.observationpoint, true)
 
             return sendMessage(interaction, weatherembed)
         })
@@ -895,16 +892,18 @@ client.ws.on('INTERACTION_CREATE', async (interaction) => {
         if (!await db.has(`lock-${guild.id}-${lockchannel.id}`)) return sendMessage(interaction, 'That channel isn\'t locked!')
 
         let lockrole = guild.roles.cache.get(args.find(arg => arg.name.toLowerCase() === 'role').value)
-        
+
         const unlockembed = new Discord.MessageEmbed()
-        .setColor('#ff0000')
-        .setTitle('🔓 CHANNEL UNLOCKED 🔓')
-        .setDescription(`Successfully unlocked the channel \`${lockchannel.name}\` to \`${lockrole.name}\`.`)
-        
-        lockchannel.updateOverwrite(lockrole, { SEND_MESSAGES: true });
+            .setColor('#ff0000')
+            .setTitle('🔓 CHANNEL UNLOCKED 🔓')
+            .setDescription(`Successfully unlocked the channel \`${lockchannel.name}\` to \`${lockrole.name}\`.`)
+
+        lockchannel.updateOverwrite(lockrole, {
+            SEND_MESSAGES: true
+        });
 
         db.delete(`lock-${guild.id}-${lockchannel.id}`)
-        
+
         sendMessage(interaction, unlockembed)
     } else if (command === 'lock') {
         const userid = interaction.member.user.id
@@ -919,17 +918,37 @@ client.ws.on('INTERACTION_CREATE', async (interaction) => {
         if (await db.has(`lock-${guild.id}-${lockchannel.id}`)) return sendMessage(interaction, 'That channel is already locked!')
 
         let lockrole = guild.roles.cache.get(args.find(arg => arg.name.toLowerCase() === 'role').value)
-        
+
         const lockembed = new Discord.MessageEmbed()
-        .setColor('#ff0000')
-        .setTitle('🔒 CHANNEL LOCKED 🔒')
-        .setDescription(`Successfully locked the channel \`${lockchannel.name}\` to \`${lockrole.name}\`. To unlock the channel, just say -g unlock (or /unlock) and if you mentioned a channel or role, remember to re-mention it in the unlock command!`)
-        
-        lockchannel.updateOverwrite(lockrole, { SEND_MESSAGES: false });
+            .setColor('#ff0000')
+            .setTitle('🔒 CHANNEL LOCKED 🔒')
+            .setDescription(`Successfully locked the channel \`${lockchannel.name}\` to \`${lockrole.name}\`. To unlock the channel, just say -g unlock (or /unlock) and if you mentioned a channel or role, remember to re-mention it in the unlock command!`)
+
+        lockchannel.updateOverwrite(lockrole, {
+            SEND_MESSAGES: false
+        });
 
         db.set(`lock-${guild.id}-${lockchannel.id}`, true)
-        
+
         sendMessage(interaction, lockembed)
+    } else if (command === 'search') {
+        let googleKey = process.env.googletok
+        let csx = "984e3a39fc150ebad"
+        let query = args.find(arg => arg.name.toLowerCase() === 'query').value
+        let result;
+
+        let href = await search(query, googleKey, csx, interaction)
+
+        const searchembed = new Discord.MessageEmbed()
+        .setTitle(href.title)
+        .setDescription(href.snippet)
+        .setImage(href.pagemap && href.pagemap.cse_thumbnail ? href.pagemap.cse_thumbnail[0].src : null)
+        .setURL(href.link)
+        .setColor("GREEN")
+        .setFooter("Powered by Google™")
+
+        return sendMessage(interaction, searchembed)
+
     }
 })
 async function createAPIMessage(interaction, content) {
@@ -948,6 +967,7 @@ async function sendMessage(interaction, content) {
         channel.send(content)
     }).catch(console.error)
 }
+
 function arrayRemove(arr, value) {
 
     return arr.filter(function (ele) {
@@ -955,12 +975,28 @@ function arrayRemove(arr, value) {
     });
 }
 async function wikisearch(query, interaction, googleKey, csx) {
-    const { body } = await request.get("https://www.googleapis.com/customsearch/v1/siterestrict?https://wikipedia.org").query({
+    const {
+        body
+    } = await request.get("https://www.googleapis.com/customsearch/v1/siterestrict?https://wikipedia.org").query({
+        key: googleKey,
+        cx: csx,
+        safe: "off",
+        q: query
+    })
+
+    if (!body.items) {
+        sendMessage(interaction, 'Sorry, I couldn\'t find anything on wikipedia that matches your query!')
+        return null
+    }
+    return body.items[0]
+}
+async function search(query, googleKey, csx, interaction) {
+    const { body } = await request.get("https://www.googleapis.com/customsearch/v1").query({
         key: googleKey, cx: csx, safe: "off", q: query
     })
 
     if(!body.items) {
-        sendMessage(interaction, 'Sorry, I couldn\'t find anything on wikipedia that matches your query!')
+        sendMessage(interaction, 'Sorry, I couldn\'t find anything that matches your query!')
         return null
     }
     return body.items[0]
