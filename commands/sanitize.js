@@ -1,4 +1,5 @@
 const swearjar = require('swearjar_modified')
+const db = require('../db')
 
 module.exports = {
     name: 'sanitize',
@@ -28,14 +29,14 @@ module.exports = {
                                                                             msg4.edit('⚗ Please wait, we are waiting for symptoms to pass...')
                                                                                 .then(msg5 => {
                                                                                     setTimeout(() => {
-                                                                                            msg5.edit('💊 Everyone\'s symptoms have passed!')
-                                                                                        }, 5000)
-                                                                                        .then(msg => {
-                                                                                            setTimeout(async () => {
-                                                                                                msg.edit('💬 Checking for any cases of Swearge (The urge to swear) in the last 100 messages...')
-                                                                                                await checkMessages(message, msg)
-                                                                                            }, 5000)
-                                                                                        })
+                                                                                        msg5.edit('💊 Everyone\'s symptoms have passed!')
+                                                                                            .then(msg => {
+                                                                                                setTimeout(async () => {
+                                                                                                    msg.edit('💬 Checking for any cases of Swearge (The urge to swear) in the last 100 messages...')
+                                                                                                    await checkMessages(message, msg)
+                                                                                                }, 5000)
+                                                                                            })
+                                                                                    }, 5000)
                                                                                 })
                                                                         }, 10000)
                                                                     })
@@ -68,22 +69,24 @@ module.exports = {
     }
 }
 async function checkMessages(message, msgtoedit) {
-    var profanenum = 0
+    db.set(`swearcounter-${message.guild.id}-${message.channel.id}`, 0)
     await message.channel.messages.fetch({
         limit: 100
     }).then(async messages => {
         setTimeout(async () => {
             await messages.forEach(message1 => {
+                var profanenumval = db.get(`swearcounter-${message.guild.id}-${message.channel.id}`)
                 if (swearjar.profane(message1.content)) {
                     message1.delete()
-                    var profanenum = profanenum + 1
+                    db.set(`swearcounter-${message.guild.id}-${message.channel.id}`, profanenumval + 1 || 1)
                 }
             })
-            if (profanenum === 0) {
+            if (profanenumval === 0) {
                 msgtoedit.edit(`✨ Good news! We found no cases of Swearge in this channel!`);
             } else {
                 msgtoedit.edit(`🧨 We found ${profanenum} cases of Swearge. Cured all cases of Swearge (Deleted all innapropiate messages)`);
             }
         }, 5000)
     })
+    db.delete(`swearcounter-${message.guild.id}-${message.channel.id}`)
 }
