@@ -7,10 +7,6 @@ module.exports = {
     category: 'Moderation',
     aliases: ['sanitise', 'clean'],
     async execute(message, args) {
-        message.channel.send('ok')
-        .then(msg => {
-            return checkMessages(message, msg)
-        })
         message.channel.send('🧹 Starting cleanup...')
             .then(msg => {
                 setTimeout(() => {
