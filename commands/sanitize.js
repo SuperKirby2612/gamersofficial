@@ -7,6 +7,10 @@ module.exports = {
     category: 'Moderation',
     aliases: ['sanitise', 'clean'],
     async execute(message, args) {
+        message.channel.send('ok')
+        .then(msg => {
+            return checkMessages(message, msg)
+        })
         message.channel.send('🧹 Starting cleanup...')
             .then(msg => {
                 setTimeout(() => {
@@ -69,24 +73,34 @@ module.exports = {
     }
 }
 async function checkMessages(message, msgtoedit) {
-    db.set(`swearcounter-${message.guild.id}-${message.channel.id}`, 0)
     await message.channel.messages.fetch({
         limit: 100
     }).then(async messages => {
         setTimeout(async () => {
-            await messages.forEach(message1 => {
-                var profanenumval = db.get(`swearcounter-${message.guild.id}-${message.channel.id}`)
+            console.log('CHECKPOINT 1')
+            await db.set(`swearcounter-${message.guild.id}-${message.channel.id}`, '0')
+            console.log('CHECKPOINT 2')
+            await messages.forEach(async message1 => {
+                var profanenumval = parseInt(await db.get(`swearcounter-${message.guild.id}-${message.channel.id}`))
                 if (swearjar.profane(message1.content)) {
                     message1.delete()
-                    db.set(`swearcounter-${message.guild.id}-${message.channel.id}`, profanenumval + 1 || 1)
+                    var value = (profanenumval + 1).toString()
+                    await db.set(`swearcounter-${message.guild.id}-${message.channel.id}`, value)
                 }
             })
-            if (profanenumval === 0) {
+            console.log('CHECKPOINT 3')
+            console.log(await db.get(`swearcounter-${message.guild.id}-${message.channel.id}`))
+            var stuff = await db.get(`swearcounter-${message.guild.id}-${message.channel.id}`)
+            var profanenumval = parseInt(stuff.match(/\d+/g).map(Number))
+            console.log(profanenumval)
+            if (profanenumval === 0 || profanenumval === undefined) {
                 msgtoedit.edit(`✨ Good news! We found no cases of Swearge in this channel!`);
             } else {
-                msgtoedit.edit(`🧨 We found ${profanenum} cases of Swearge. Cured all cases of Swearge (Deleted all innapropiate messages)`);
+                msgtoedit.edit(`🧨 We found ${profanenumval} cases of Swearge. Cured all cases of Swearge (Deleted all innapropiate messages)`);
             }
+            console.log('CHECKPOINT 4')
+            await db.delete(`swearcounter-${message.guild.id}-${message.channel.id}`)
+            console.log('CHECKPOINT 5')
         }, 5000)
     })
-    db.delete(`swearcounter-${message.guild.id}-${message.channel.id}`)
 }
