@@ -106,6 +106,18 @@ const weather = require('weather-js')
 
 const swearjar = require('swearjar_modified')
 
+var iso8601 = require('iso8601-convert')
+
+const Twitter = require('twitter');
+const tclient = new Twitter({
+    consumer_key: process.env.TWITTER_CONSUMER_KEY,
+    consumer_secret: process.env.TWITTER_CONSUMER_SECRET,
+    access_token_key: process.env.TWITTER_ACCESS_TOKEN,
+    access_token_secret: process.env.TWITTER_ACCESS_SECRET
+});
+
+exports.tclient = tclient
+
 client.commands = new Discord.Collection();
 
 const commandFiles = fs.readdirSync('commands/').filter(file => file.endsWith('.js'))
@@ -208,7 +220,7 @@ client.on('ready', () => {
             }]
         }
     });
-    client.api.applications(client.user.id).guilds('760129849154338827').commands.post({
+    client.api.applications(client.user.id).commands.post({
         data: {
             name: 'search',
             description: "Searches a query on google.",
@@ -220,6 +232,77 @@ client.on('ready', () => {
                 required: true,
             }, ]
         }
+    });
+    client.api.applications(client.user.id).guilds('760129849154338827').commands.post({
+        data: {
+            name: 'sanitize',
+            description: "TO DO",
+
+            options: [{
+                name: "query",
+                description: "Query that you want to search on Google",
+                type: 3,
+                required: true,
+            }, ]
+        }
+    });
+    client.guilds.cache.forEach(async (guild) => {
+        guild.channels.cache.forEach(async (channel) => {
+            if (await db.has(`tweetstream-${guild.id}-${channel.id}`)) {
+                var hashtag = await db.get(`tweetstream-${guild.id}-${channel.id}`)
+                var stream = tclient.stream('statuses/filter', {
+                    track: hashtag
+                });
+                stream.on('data', async function (event) {
+                    var lasttweet = await db.get(`lasttweettime-${guild.id}-${channel.id}`)
+                    console.log(lasttweet)
+                    console.log((Date.now() - lasttweet))
+                    console.log((Date.now() - parseInt(event.timestamp_ms)))
+                    if (lasttweet === undefined) {
+                        await db.set(`lasttweettime-${guild.id}-${channel.id}`, false)
+                    }
+                    if ((Date.now() - lasttweet) < 30000 || lasttweet === false) return;
+                    await db.set(`lasttweettime-${guild.id}-${channel.id}`, Date.now())
+                    if ((parseInt(event.timestamp_ms) - Date.now()) > 60000) return;
+                    if (event.filter_level !== 'low') return;
+                    if (swearjar.profane(event.text) && await db.has(`swear-${guild.id}`) && !await db.has(`censor-${guild.id}`)) return;
+                    if (await db.has(`censor-${guild.id}`)) {
+                        var streamembed = new Discord.MessageEmbed()
+                            .setTitle('New Tweet by a verified user!')
+                            .setColor('#08a0e9')
+                            .setURL(`https://www.twitter.com/${event.user.screen_name}/status/${event.id_str}`)
+                            .setThumbnail(event.user.profile_image_url)
+                            .addField(`${event.user.screen_name} says...`, swearjar.censor(event.text))
+                            .setTimestamp()
+                        channel.send(streamembed)
+                    } else {
+                        if (event.user.verified) {
+                            var streamembed = new Discord.MessageEmbed()
+                                .setTitle('New Tweet by a verified user!')
+                                .setColor('#08a0e9')
+                                .setURL(`https://www.twitter.com/${event.user.screen_name}/status/${event.id_str}`)
+                                .setThumbnail(event.user.profile_image_url)
+                                .addField(`${event.user.screen_name} says...`, event.text)
+                                .setTimestamp()
+                            channel.send(streamembed)
+                        } else {
+                            var streamembed = new Discord.MessageEmbed()
+                                .setTitle('New Tweet!')
+                                .setColor('#08a0e9')
+                                .setURL(`https://www.twitter.com/${event.user.screen_name}/status/${event.id_str}`)
+                                .setThumbnail(event.user.profile_image_url)
+                                .addField(`${event.user.screen_name} says...`, event.text)
+                                .setTimestamp()
+                            channel.send(streamembed)
+                        }
+                    }
+                });
+
+                stream.on('error', function (error) {
+                    console.log(error)
+                });
+            }
+        })
     });
     setInterval(() => {
         const statustypes = [
@@ -672,7 +755,6 @@ client.ws.on('INTERACTION_CREATE', async (interaction) => {
     const args = interaction.data.options
 
     if (command === 'help') {
-        console.log(interaction)
         const description = args.find(arg => arg.name.toLowerCase() === 'category').value
         const recon = require('reconlx')
         const ReactionPages = recon.ReactionPages
@@ -940,12 +1022,12 @@ client.ws.on('INTERACTION_CREATE', async (interaction) => {
         let href = await search(query, googleKey, csx, interaction)
 
         const searchembed = new Discord.MessageEmbed()
-        .setTitle(href.title)
-        .setDescription(href.snippet)
-        .setImage(href.pagemap && href.pagemap.cse_thumbnail ? href.pagemap.cse_thumbnail[0].src : null)
-        .setURL(href.link)
-        .setColor("GREEN")
-        .setFooter("Powered by Google™")
+            .setTitle(href.title)
+            .setDescription(href.snippet)
+            .setImage(href.pagemap && href.pagemap.cse_thumbnail ? href.pagemap.cse_thumbnail[0].src : null)
+            .setURL(href.link)
+            .setColor("GREEN")
+            .setFooter("Powered by Google™")
 
         return sendMessage(interaction, searchembed)
 
@@ -991,11 +1073,16 @@ async function wikisearch(query, interaction, googleKey, csx) {
     return body.items[0]
 }
 async function search(query, googleKey, csx, interaction) {
-    const { body } = await request.get("https://www.googleapis.com/customsearch/v1").query({
-        key: googleKey, cx: csx, safe: "off", q: query
+    const {
+        body
+    } = await request.get("https://www.googleapis.com/customsearch/v1").query({
+        key: googleKey,
+        cx: csx,
+        safe: "off",
+        q: query
     })
 
-    if(!body.items) {
+    if (!body.items) {
         sendMessage(interaction, 'Sorry, I couldn\'t find anything that matches your query!')
         return null
     }
