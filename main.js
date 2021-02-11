@@ -52,6 +52,7 @@ let MONGOOSE_TOK = null;
 let GOOGLE_TOK = null;
 let SPOTIFY_TOKEN_ID = null;
 let SPOTIFY_TOKEN_SECRET = null;
+var newsapikey = process.env.NEWSAPI_KEY
 
 // My Part //
 const Discord = require('discord.js'),
@@ -107,6 +108,12 @@ const weather = require('weather-js')
 const swearjar = require('swearjar_modified')
 
 var iso8601 = require('iso8601-convert')
+
+const countries = require('country-data').countries
+
+const lookup = require('country-data').lookup;
+
+const newsapi = require('newsapi')
 
 const Twitter = require('twitter');
 const tclient = new Twitter({
@@ -233,15 +240,33 @@ client.on('ready', () => {
             }, ]
         }
     });
-    client.api.applications(client.user.id).guilds('760129849154338827').commands.post({
+    client.api.applications(client.user.id).commands.post({
         data: {
             name: 'sanitize',
-            description: "TO DO",
+            description: "Cleans a specified channel. (Removes innapropiate language)",
 
             options: [{
-                name: "query",
-                description: "Query that you want to search on Google",
+                name: "channel",
+                description: "Channel that you want to clean.",
+                type: 7,
+                required: true,
+            }]
+        }
+    });
+    client.api.applications(client.user.id).guilds('760129849154338827').commands.post({
+        data: {
+            name: 'streamtweets',
+            description: "Streams any new tweets with a specified hashtag to a specified channel",
+
+            options: [{
+                name: 'hashtag',
+                description: 'The hashtag you want to stream.',
                 type: 3,
+                required: true
+            },{
+                name: "channel",
+                description: "Channel that you want to stream to.",
+                type: 7,
                 required: true,
             }, ]
         }
@@ -254,14 +279,12 @@ client.on('ready', () => {
                     track: hashtag
                 });
                 stream.on('data', async function (event) {
+                    if (!await db.has(`tweetstream-${guild.id}-${channel.id}`)) return;
                     var lasttweet = await db.get(`lasttweettime-${guild.id}-${channel.id}`)
-                    console.log(lasttweet)
-                    console.log((Date.now() - lasttweet))
-                    console.log((Date.now() - parseInt(event.timestamp_ms)))
                     if (lasttweet === undefined) {
-                        await db.set(`lasttweettime-${guild.id}-${channel.id}`, false)
+                        await db.set(`lasttweettime-${guild.id}-${channel.id}`, 'false')
                     }
-                    if ((Date.now() - lasttweet) < 30000 || lasttweet === false) return;
+                    if ((Date.now() - lasttweet) < 30000 || lasttweet === 'false') return;
                     await db.set(`lasttweettime-${guild.id}-${channel.id}`, Date.now())
                     if ((parseInt(event.timestamp_ms) - Date.now()) > 60000) return;
                     if (event.filter_level !== 'low') return;
@@ -708,7 +731,7 @@ client.on('messageDelete', async (messageDelete) => {
     var delusermentions = messageDelete.mentions.users.array()
     var delrolementions = messageDelete.mentions.roles.array()
     var delmentions = [].concat(delusermentions, delrolementions)
-    if (delmentions === []) return;
+    if (delmentions.length === 0) return;
     else {
         await Discord.Util.delayFor(900);
 
@@ -970,6 +993,7 @@ client.ws.on('INTERACTION_CREATE', async (interaction) => {
         if (!member.hasPermission("MANAGE_CHANNELS")) return sendMessage(interaction, 'Sorry, you don\'t have the correct permissions to do that! `(MANAGE CHANNELS)`')
 
         let lockchannel = guild.channels.cache.get(args.find(arg => arg.name.toLowerCase() === 'channel').value)
+        if (channel.type !== 'text') return sendMessage(interaction, `Sorry, I cannot unlock that channel because the type of the channel is type: \`${channel.type}\`. I only support text channels!`)
 
         if (!await db.has(`lock-${guild.id}-${lockchannel.id}`)) return sendMessage(interaction, 'That channel isn\'t locked!')
 
@@ -996,6 +1020,7 @@ client.ws.on('INTERACTION_CREATE', async (interaction) => {
         if (!member.hasPermission("MANAGE_CHANNELS")) return sendMessage(interaction, 'Sorry, you don\'t have the correct permissions to do that! `(MANAGE CHANNELS)`')
 
         let lockchannel = guild.channels.cache.get(args.find(arg => arg.name.toLowerCase() === 'channel').value)
+        if (channel.type !== 'text') return sendMessage(interaction, `Sorry, I cannot lock that channel because the type of the channel is type: \`${channel.type}\`. I only support text channels!`)
 
         if (await db.has(`lock-${guild.id}-${lockchannel.id}`)) return sendMessage(interaction, 'That channel is already locked!')
 
@@ -1031,6 +1056,140 @@ client.ws.on('INTERACTION_CREATE', async (interaction) => {
 
         return sendMessage(interaction, searchembed)
 
+    } else if (command === 'sanitize') {
+        const userid = interaction.member.user.id
+        const user = client.users.cache.get(userid);
+        const guild = client.guilds.cache.get(interaction.guild_id)
+        const member = guild.member(user)
+        if (!member.hasPermission('MANAGE_CHANNELS')) return message.channel.send('Sorry, you don\'t have the correct permissions to do that! `(MANAGE_CHANNELS)`')
+        var channel = await client.channels.fetch(args.find(arg => arg.name.toLowerCase() === 'channel').value)
+            .catch(err => {
+                sendMessage(interaction, 'Sorry, I\'m having trouble finding that channel!')
+            })
+        if (channel.type !== 'text') return sendMessage(interaction, `Sorry, I cannot sanitize that channel because the type of the channel is type: \`${channel.type}\`. I only support text channels!`)
+        channel.send('🧹 Starting cleanup...')
+            .then(msg => {
+                setTimeout(() => {
+                    msg.edit('🍽 Cleaning the dishes...')
+                        .then(msg1 => {
+                            setTimeout(() => {
+                                msg1.edit('🦠 Checking for covid-19...')
+                                    .then(msg2 => {
+                                        setTimeout(() => {
+                                            const randomnum = Math.floor(Math.random() * 2)
+                                            if (randomnum === 1) {
+                                                msg2.edit('🦠 Bad news! We found some covid-19! Disinfecting... 🤿')
+                                                    .then(msg3 => {
+                                                        setTimeout(() => {
+                                                            const randomnum1 = Math.floor(Math.random() * 2)
+                                                            if (randomnum1 === 1) {
+                                                                msg3.edit('💉 Uh oh! We disinfected this channel but couldn\'t cure everyone!')
+                                                                    .then(msg4 => {
+                                                                        setTimeout(() => {
+                                                                            msg4.edit('⚗ Please wait, we are waiting for symptoms to pass...')
+                                                                                .then(msg5 => {
+                                                                                    setTimeout(() => {
+                                                                                        msg5.edit('💊 Everyone\'s symptoms have passed!')
+                                                                                            .then(msg => {
+                                                                                                setTimeout(async () => {
+                                                                                                    msg.edit('💬 Checking for any cases of Swearge (The urge to swear) in the last 100 messages...')
+                                                                                                    await checkMessages(msg, channel)
+                                                                                                }, 5000)
+                                                                                            })
+                                                                                    }, 5000)
+                                                                                })
+                                                                        }, 10000)
+                                                                    })
+                                                            } else {
+                                                                msg3.edit('🧪 Good news! We disinfected this channel and cured everyone!')
+                                                                    .then(msg41 => {
+                                                                        setTimeout(async () => {
+                                                                            msg41.edit('💬 Checking for any cases of Swearge (The urge to swear) in the last 100 messages...')
+                                                                            await checkMessages(msg, channel)
+                                                                        }, 5000)
+                                                                    })
+                                                            }
+                                                        }, 5000)
+                                                    })
+                                            } else {
+                                                msg2.edit('🦠 Good news! No covid-19 found.')
+                                                    .then(msg31 => {
+                                                        setTimeout(async () => {
+                                                            msg31.edit('💬 Checking for any cases of Swearge (The urge to swear) in the last 100 messages...')
+                                                            await checkMessages(msg, channel)
+                                                        }, 5000)
+                                                    })
+                                            }
+                                        }, 5000)
+                                    })
+                            }, 5000)
+                        })
+                }, 5000)
+            })
+    } else if (command === 'streamtweets') {
+        const userid = interaction.member.user.id
+        const user = client.users.cache.get(userid);
+        const guild = client.guilds.cache.get(interaction.guild_id)
+        const member = guild.member(user)
+        if (!member.hasPermission('MANAGE_CHANNELS')) return sendMessage(interaction, 'Sorry, you don\'t have the correct permissions to do that! `(MANAGE_CHANNELS)`')
+        var hashtag = args.find(arg => arg.name === 'hashtag').value
+        if (!hashtag.startsWith('#')) return sendMessage(interaction, 'That\'s not a hashtag, it doesn\'t start with #')
+        if (hashtag.includes(' ')) {
+            var spacelocation = hashtag.search(' ')
+            var hashtag = hashtag.slice(0, spacelocation)
+        }
+        var stream = tclient.stream('statuses/filter', {
+            track: hashtag
+        });
+        var channel = await client.channels.fetch(args.find(arg => arg.name === 'channel').value)
+        if (await db.has(`tweetstream-${guild.id}-${channel.id}`)) return sendMessage(interaction, `Sorry, there\'s already a tweet stream in <#${channel.id}>. You can disable it with the command dstweets <#channel>!`)
+        await db.set(`tweetstream-${guild.id}-${channel.id}`, hashtag)
+        sendMessage(interaction, `Streaming all tweets that include ${hashtag} to <#${channel.id}>. You can disable this with the command dstweets <#channel>`)
+        stream.on('data', async function (event) {
+            var lasttweet = await db.get(`lasttweettime-${guild.id}-${channel.id}`)
+            if (lasttweet === undefined) {
+                await db.set(`lasttweettime-${guild.id}-${channel.id}`, false)
+            }
+            if ((Date.now() - lasttweet) < 30000 || lasttweet === false) return;
+            await db.set(`lasttweettime-${guild.id}-${channel.id}`, Date.now())
+            if ((parseInt(event.timestamp_ms) - Date.now()) > 60000) return;
+            if (event.filter_level !== 'low') return;
+            if (swearjar.profane(event.text) && await db.has(`swear-${guild.id}`) && !await db.has(`censor-${guild.id}`)) return;
+            if (await db.has(`censor-${guild.id}`)) {
+                var streamembed = new Discord.MessageEmbed()
+                    .setTitle('New Tweet by a verified user!')
+                    .setColor('#08a0e9')
+                    .setURL(`https://www.twitter.com/${event.user.screen_name}/status/${event.id_str}`)
+                    .setThumbnail(event.user.profile_image_url)
+                    .addField(`${event.user.screen_name} says...`, swearjar.censor(event.text))
+                    .setTimestamp()
+                channel.send(streamembed)
+            } else {
+                if (event.user.verified) {
+                    var streamembed = new Discord.MessageEmbed()
+                        .setTitle('New Tweet by a verified user!')
+                        .setColor('#08a0e9')
+                        .setURL(`https://www.twitter.com/${event.user.screen_name}/status/${event.id_str}`)
+                        .setThumbnail(event.user.profile_image_url)
+                        .addField(`${event.user.screen_name} says...`, event.text)
+                        .setTimestamp()
+                    channel.send(streamembed)
+                } else {
+                    var streamembed = new Discord.MessageEmbed()
+                        .setTitle('New Tweet!')
+                        .setColor('#08a0e9')
+                        .setURL(`https://www.twitter.com/${event.user.screen_name}/status/${event.id_str}`)
+                        .setThumbnail(event.user.profile_image_url)
+                        .addField(`${event.user.screen_name} says...`, event.text)
+                        .setTimestamp()
+                    channel.send(streamembed)
+                }
+            }
+        });
+
+        stream.on('error', function (error) {
+            console.log(error)
+        });
     }
 })
 async function createAPIMessage(interaction, content) {
@@ -1087,4 +1246,18 @@ async function search(query, googleKey, csx, interaction) {
         return null
     }
     return body.items[0]
+}
+async function checkMessages(msgtoedit, channel) {
+    await channel.messages.fetch({
+        limit: 100
+    }).then(async messages => {
+        setTimeout(async () => {
+            await messages.forEach(async message1 => {
+                if (swearjar.profane(message1.content)) {
+                    message1.delete()
+                }
+            })
+            msgtoedit.edit(`✨ Good news! We disinfected all cases of Swearge in this channel! (if any)`)
+        }, 5000)
+    })
 }

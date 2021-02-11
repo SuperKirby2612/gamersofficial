@@ -1,6 +1,7 @@
 const Discord = require('discord.js')
 const Levels = require('discord-xp')
 const giphyRandom = require('giphy-random')
+const db = require('../db')
 
 module.exports = {
     name: 'xp',
@@ -15,7 +16,8 @@ module.exports = {
         if (guildid === undefined || null) {
             var guildid = message.guild.id
         }
-        const randomXp = Math.floor(Math.random() * 9) + 1
+        var randomxpnum = await db.get(`xpmultiplier-${message.guild.id}`) || 1
+        const randomXp = (Math.floor(Math.random() * 9) + 1) * randomxpnum
         const hasLeveledUp = await Levels.appendXp(authorid, guildid, randomXp);
         if (hasLeveledUp) {
             const user = await Levels.fetch(authorid, guildid)

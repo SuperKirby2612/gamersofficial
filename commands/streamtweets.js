@@ -9,6 +9,7 @@ module.exports = {
     name: 'streamtweets',
     description: 'streamtweets',
     category: 'Misc',
+    aliases: ['streamtweet', 'tweetstream', 'tweetsstream',],
     async execute(message, args) {
         if (!message.member.hasPermission('MANAGE_CHANNELS')) return message.channel.send('Sorry, you don\'t have the correct permissions to do that! `(MANAGE_CHANNELS)`')
         var hashtag = args[0]
@@ -18,12 +19,17 @@ module.exports = {
             track: hashtag
         });
         var channel = message.mentions.channels.first() || message.channel
-        // if (await db.has(`tweetstream-${message.guild.id}-${channel.id}`)) return message.channel.send(`Sorry, there\'s already a tweet stream in <#${channel.id}>. You can disable it with the command dstweets!`)
-        await db.set(`tweetstream-${message.guild.id}-${message.channel.id}`, hashtag)
-        message.channel.send(`Streaming all tweets that include ${hashtag} to <#${channel.id}>`)
+        if (await db.has(`tweetstream-${message.guild.id}-${channel.id}`)) return message.channel.send(`Sorry, there\'s already a tweet stream in <#${channel.id}>. You can disable it with the command dstweets <#channel>!`)
+        await db.set(`tweetstream-${message.guild.id}-${channel.id}`, hashtag)
+        message.channel.send(`Streaming all tweets that include ${hashtag} to <#${channel.id}>. You can disable this with the command dstweets <#channel>`)
         stream.on('data', async function (event) {
-            if (clock === false) return;
-            if (clock !== false) {
+            var lasttweet = await db.get(`lasttweettime-${message.guild.id}-${channel.id}`)
+            if (lasttweet === undefined) {
+                await db.set(`lasttweettime-${message.guild.id}-${channel.id}`, 'false')
+            }
+            if ((Date.now() - lasttweet) < 30000 || lasttweet === 'false') return;
+            await db.set(`lasttweettime-${message.guild.id}-${channel.id}`, Date.now())
+            if ((parseInt(event.timestamp_ms) - Date.now()) > 60000) return;
             if (event.filter_level !== 'low') return;
             if (swearjar.profane(event.text) && await db.has(`swear-${message.guild.id}`) && !await db.has(`censor-${message.guild.id}`)) return;
             if (await db.has(`censor-${message.guild.id}`)) {
@@ -56,23 +62,10 @@ module.exports = {
                     channel.send(streamembed)
                 }
             }
-            clock(30)
-        }
         });
 
         stream.on('error', function (error) {
             console.log(error)
         });
     }
-}
-function clock(num) {
-    setInterval(() => {
-        var c = c + 1
-        if (c === num) {
-            var state = true
-        } else {
-            var state = false
-        }
-        return state
-    }, 1000)
 }

@@ -7,7 +7,8 @@ module.exports = {
     category: 'Moderation',
     aliases: ['sanitise', 'clean'],
     async execute(message, args) {
-        message.channel.send('🧹 Starting cleanup...')
+        var channel = message.mentions.channels.first() || message.channel
+        channel.send('🧹 Starting cleanup...')
             .then(msg => {
                 setTimeout(() => {
                     msg.edit('🍽 Cleaning the dishes...')
@@ -33,7 +34,7 @@ module.exports = {
                                                                                             .then(msg => {
                                                                                                 setTimeout(async () => {
                                                                                                     msg.edit('💬 Checking for any cases of Swearge (The urge to swear) in the last 100 messages...')
-                                                                                                    await checkMessages(message, msg)
+                                                                                                    await checkMessages(msg, channel)
                                                                                                 }, 5000)
                                                                                             })
                                                                                     }, 5000)
@@ -45,7 +46,7 @@ module.exports = {
                                                                     .then(msg41 => {
                                                                         setTimeout(async () => {
                                                                             msg41.edit('💬 Checking for any cases of Swearge (The urge to swear) in the last 100 messages...')
-                                                                            await checkMessages(message, msg)
+                                                                            await checkMessages(msg, channel)
                                                                         }, 5000)
                                                                     })
                                                             }
@@ -56,7 +57,7 @@ module.exports = {
                                                     .then(msg31 => {
                                                         setTimeout(async () => {
                                                             msg31.edit('💬 Checking for any cases of Swearge (The urge to swear) in the last 100 messages...')
-                                                            await checkMessages(message, msg)
+                                                            await checkMessages(msg, channel)
                                                         }, 5000)
                                                     })
                                             }
@@ -68,28 +69,17 @@ module.exports = {
             })
     }
 }
-async function checkMessages(message, msgtoedit) {
-    await message.channel.messages.fetch({
+async function checkMessages(msgtoedit, channel) {
+    await channel.messages.fetch({
         limit: 100
     }).then(async messages => {
         setTimeout(async () => {
-            await db.set(`swearcounter-${message.guild.id}-${message.channel.id}`, '0')
             await messages.forEach(async message1 => {
-                var profanenumval = parseInt(await db.get(`swearcounter-${message.guild.id}-${message.channel.id}`))
                 if (swearjar.profane(message1.content)) {
                     message1.delete()
-                    var value = (profanenumval + 1).toString()
-                    await db.set(`swearcounter-${message.guild.id}-${message.channel.id}`, value)
                 }
             })
-            var stuff = await db.get(`swearcounter-${message.guild.id}-${message.channel.id}`)
-            var profanenumval = parseInt(stuff.match(/\d+/g).map(Number))
-            if (profanenumval === 0 || profanenumval === undefined) {
-                msgtoedit.edit(`✨ Good news! We found no cases of Swearge in this channel!`);
-            } else {
-                msgtoedit.edit(`🧨 We found ${profanenumval} cases of Swearge. Cured all cases of Swearge (Deleted all innapropiate messages)`);
-            }
-            await db.delete(`swearcounter-${message.guild.id}-${message.channel.id}`)
+                msgtoedit.edit(`✨ Good news! We found disinfected all cases of Swearge in this channel!`)
         }, 5000)
     })
 }
