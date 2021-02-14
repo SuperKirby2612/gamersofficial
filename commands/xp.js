@@ -23,7 +23,7 @@ module.exports = {
             const user = await Levels.fetch(authorid, guildid)
             const userid = authorid
             var yaygifdata = await giphyRandom(process.env.GIPHY_API_TOKEN, [{
-                tag: 'yay',
+                tag: 'happy',
                 rating: 'g'
             }])
             if (yaygifdata.data.type !== 'gif') {

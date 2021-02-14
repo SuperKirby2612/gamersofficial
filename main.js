@@ -55,11 +55,12 @@ let SPOTIFY_TOKEN_SECRET = null;
 var newsapikey = process.env.NEWSAPI_KEY
 
 // My Part //
-const Discord = require('discord.js'),
-    Distube = require('distube'),
-    client = new Discord.Client({
-        partials: ['MESSAGE', 'REACTION'],
-    })
+const Discord = require('discord.js')
+const Distube = require('distube')
+const client = new Discord.Client({
+    partials: ['MESSAGE', 'REACTION'],
+})
+exports.client = client
 const PREFIX = "-g"
 const mongoose = require('mongoose')
 mongoose.connect(process.env.MONGO_URI, {
@@ -90,8 +91,6 @@ const canvacord = require('canvacord')
 const nsfwjs = require('nsfwjs')
 
 const fspromises = require('fs').promises
-
-const wavconvert = require('wav-converter')
 
 const download = require('image-downloader')
 
@@ -144,133 +143,135 @@ client.on('ready', () => {
     new WOKcommands(client, 'commands', 'features')
         .setMongoPath(process.env.MONGO_URI)
         .setDefaultPrefix('-g ')
-    client.api.applications(client.user.id).commands.post({
-        data: {
-            name: 'help',
-            description: "Sends a list of all commands and their syntax.",
+    if ('fgjfjgfjgfjgf' === 'f') {
+        client.api.applications(client.user.id).commands.post({
+            data: {
+                name: 'help',
+                description: "Sends a list of all commands and their syntax.",
 
-            options: [{
-                name: "category",
-                description: 'Options: moderation, fun, misc',
-                type: 3,
-                required: true
-            }]
-        }
-    });
-    client.api.applications(client.user.id).commands.post({
-        data: {
-            name: 'support',
-            description: "Find out how you can support me!",
+                options: [{
+                    name: "category",
+                    description: 'Options: moderation, fun, misc',
+                    type: 3,
+                    required: true
+                }]
+            }
+        });
+        client.api.applications(client.user.id).commands.post({
+            data: {
+                name: 'support',
+                description: "Find out how you can support me!",
 
-            options: [{
-                name: "category",
-                description: 'Options: youtube, donation, discord',
-                type: 3,
-                required: true
-            }]
-        }
-    });
-    client.api.applications(client.user.id).commands.post({
-        data: {
-            name: 'whois',
-            description: "Gives information on a user.",
+                options: [{
+                    name: "category",
+                    description: 'Options: youtube, donation, discord',
+                    type: 3,
+                    required: true
+                }]
+            }
+        });
+        client.api.applications(client.user.id).commands.post({
+            data: {
+                name: 'whois',
+                description: "Gives information on a user.",
 
-            options: [{
-                name: "user",
-                description: "User that you want information on.",
-                type: 6,
-                required: true,
-            }, ]
-        }
-    });
-    client.api.applications(client.user.id).commands.post({
-        data: {
-            name: 'wikisearch',
-            description: "Searches a query on the wiki, if a wiki page is not found, the next best result will be sent..",
+                options: [{
+                    name: "user",
+                    description: "User that you want information on.",
+                    type: 6,
+                    required: true,
+                }, ]
+            }
+        });
+        client.api.applications(client.user.id).commands.post({
+            data: {
+                name: 'wikisearch',
+                description: "Searches a query on the wiki, if a wiki page is not found, the next best result will be sent..",
 
-            options: [{
-                name: "query",
-                description: "Query that you want to search on Wikipedia",
-                type: 3,
-                required: true,
-            }, ]
-        }
-    });
-    client.api.applications(client.user.id).commands.post({
-        data: {
-            name: 'weather',
-            description: "Sends the current weather of a city.",
+                options: [{
+                    name: "query",
+                    description: "Query that you want to search on Wikipedia",
+                    type: 3,
+                    required: true,
+                }, ]
+            }
+        });
+        client.api.applications(client.user.id).commands.post({
+            data: {
+                name: 'weather',
+                description: "Sends the current weather of a city.",
 
-            options: [{
-                name: "city",
-                description: "City that you want the weather of.",
-                type: 3,
-                required: true,
-            }, ]
-        }
-    });
-    client.api.applications(client.user.id).commands.post({
-        data: {
-            name: 'unlock',
-            description: "Unlocks a specified locked channel to the linked locked role (and any role lower).",
+                options: [{
+                    name: "city",
+                    description: "City that you want the weather of.",
+                    type: 3,
+                    required: true,
+                }, ]
+            }
+        });
+        client.api.applications(client.user.id).commands.post({
+            data: {
+                name: 'unlock',
+                description: "Unlocks a specified locked channel to the linked locked role (and any role lower).",
 
-            options: [{
-                name: "channel",
-                description: "Channel that you want to unlock.",
-                type: 7,
-                required: true,
-            }, {
-                name: 'role',
-                description: 'Role of which you want to unlock the channel to.',
-                type: 8,
-                required: true
-            }]
-        }
-    });
-    client.api.applications(client.user.id).commands.post({
-        data: {
-            name: 'search',
-            description: "Searches a query on google.",
+                options: [{
+                    name: "channel",
+                    description: "Channel that you want to unlock.",
+                    type: 7,
+                    required: true,
+                }, {
+                    name: 'role',
+                    description: 'Role of which you want to unlock the channel to.',
+                    type: 8,
+                    required: true
+                }]
+            }
+        });
+        client.api.applications(client.user.id).commands.post({
+            data: {
+                name: 'search',
+                description: "Searches a query on google.",
 
-            options: [{
-                name: "query",
-                description: "Query that you want to search on Google",
-                type: 3,
-                required: true,
-            }, ]
-        }
-    });
-    client.api.applications(client.user.id).commands.post({
-        data: {
-            name: 'sanitize',
-            description: "Cleans a specified channel. (Removes innapropiate language)",
+                options: [{
+                    name: "query",
+                    description: "Query that you want to search on Google",
+                    type: 3,
+                    required: true,
+                }, ]
+            }
+        });
+        client.api.applications(client.user.id).commands.post({
+            data: {
+                name: 'sanitize',
+                description: "Cleans a specified channel. (Removes innapropiate language)",
 
-            options: [{
-                name: "channel",
-                description: "Channel that you want to clean.",
-                type: 7,
-                required: true,
-            }]
-        }
-    });
-    client.api.applications(client.user.id).guilds('760129849154338827').commands.post({
-        data: {
-            name: 'streamtweets',
-            description: "Streams any new tweets with a specified hashtag to a specified channel",
+                options: [{
+                    name: "channel",
+                    description: "Channel that you want to clean.",
+                    type: 7,
+                    required: true,
+                }]
+            }
+        });
+        client.api.applications(client.user.id).guilds('760129849154338827').commands.post({
+            data: {
+                name: 'streamtweets',
+                description: "Streams any new tweets with a specified hashtag to a specified channel",
 
-            options: [{
-                name: 'hashtag',
-                description: 'The hashtag you want to stream.',
-                type: 3,
-                required: true
-            },{
-                name: "channel",
-                description: "Channel that you want to stream to.",
-                type: 7,
-                required: true,
-            }, ]
-        }
-    });
+                options: [{
+                    name: 'hashtag',
+                    description: 'The hashtag you want to stream.',
+                    type: 3,
+                    required: true
+                }, {
+                    name: "channel",
+                    description: "Channel that you want to stream to.",
+                    type: 7,
+                    required: true,
+                }, ]
+            }
+        });
+    }
     client.guilds.cache.forEach(async (guild) => {
         guild.channels.cache.forEach(async (channel) => {
             if (await db.has(`tweetstream-${guild.id}-${channel.id}`)) {
@@ -376,17 +377,8 @@ const isInvite = async (guild, code) => {
 }
 
 const lb = PREFIX + 'lb'
-const rec = PREFIX + 'record'
 
 const db = require('./db');
-const {
-    isUndefined
-} = require('underscore');
-client.on("voiceStateUpdate", async function (oldMember, newMember) {
-    if (oldMember !== null && newMember === null && recordstate === true) {
-        writer.end();
-    }
-})
 client.on('message', async (message) => {
     const guildid = message.guild.id;
     const authorid = message.author.id;
@@ -419,47 +411,6 @@ client.on('message', async (message) => {
                 message.author.send(antiinviteembed)
             }
         }
-
-        if (message.content.trim().toLowerCase() == '-g record') { // Apparently, a sound needs to be played before the bot can start hearing! Not fixed
-            const voicechannel = message.member.voice.channel
-            if (!voicechannel) return message.channel.send('Please join a VC first!');
-            var recordstate = true;
-            const connection = await message.member.voice.channel.join().then(async (connectionvc) => {
-                connectionvc.play(path.join(__dirname, 'discordjoinvcsound.mp3'))
-            })
-            setTimeout(async () => {
-                const receiver1 = await connection.receiver.createStream(message.member, {
-                    mode: 'pcm',
-                    end: "manual"
-                })
-                const idplus = `${message.author.id}-${Date.now()}`
-                const writer = await receiver1.pipe(fs.createWriteStream(`./temp/recorded-${idplus}.pcm`))
-                writer.on('finish', async () => {
-                    await message.channel.send('I stopped recording because you left the VC.');
-                    var pcmData = fs.readFileSync(path.resolve(`./temp/recorded-${idplus}.pcm`))
-                    var wavData = wavconvert.encodeWav(pcmData, {
-                        numChannels: 1,
-                        sampleRate: 16000,
-                        byteRate: 16
-                    })
-                    fs.writeFileSync(path.resolve(`./temp/recorded-${idplus}.wav`), wavData)
-                    var wavfile = `./temp/recorded-${idplus}.wav`
-                    var stats = fs.statSync(wavfile)
-                    var fileSizeInBytes = stats.size;
-                    var size = fileSizeInBytes / (1024 * 1024);
-                    if (size >= 8) return message.channel.send('Sorry, the recording\'s size was too big so I had to cancel the operation!')
-                    var recordstate = false;
-                    message.channel.send('Here is your audio file!')
-                    await message.channel.send({
-                        files: [`./temp/recorded-${idplus}.pcm`]
-                    })
-                })
-            }, 500)
-        } else if (cmd === '-gplay') {
-            if (!message.member.voice.channel) return message.channel.send('Sorry, you need to be in a VC to play a song!')
-            distube.play(message, args.join(" "))
-        }
-
     }),
     client.on('message', async (message) => {
         try {
@@ -727,6 +678,7 @@ function oneworddelete1(message) {
 }
 client.on('messageDelete', async (messageDelete) => {
     if (!messageDelete.guild) return;
+    if (message.author.bot) return;
     if (messageDelete.mentions.users.first() === undefined && messageDelete.mentions.roles.first() === undefined) return;
     var delusermentions = messageDelete.mentions.users.array()
     var delrolementions = messageDelete.mentions.roles.array()
