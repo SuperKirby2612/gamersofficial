@@ -114,6 +114,8 @@ const lookup = require('country-data').lookup;
 
 const newsapi = require('newsapi')
 
+const captchacheck = require('./utils/captcha')
+
 const Twitter = require('twitter');
 const tclient = new Twitter({
     consumer_key: process.env.TWITTER_CONSUMER_KEY,
@@ -142,7 +144,7 @@ client.on('ready', () => {
     console.log(`Logged in as ${client.user.tag}!`)
     new WOKcommands(client, 'commands', 'features')
         .setMongoPath(process.env.MONGO_URI)
-        .setDefaultPrefix('-g ')
+        .setDefaultPrefix('.')
     if ('fgjfjgfjgfjgf' === 'f') {
         client.api.applications(client.user.id).commands.post({
             data: {
@@ -380,6 +382,8 @@ const lb = PREFIX + 'lb'
 
 const db = require('./db');
 client.on('message', async (message) => {
+    if (message.guild === null) return;
+    if (message.author.bot) return;
     const guildid = message.guild.id;
     const authorid = message.author.id;
     client.commands.get('xp').execute(message, authorid, guildid)
@@ -411,33 +415,11 @@ client.on('message', async (message) => {
                 message.author.send(antiinviteembed)
             }
         }
-    }),
-    client.on('message', async (message) => {
-        try {
-            if (message.content.trim().toLowerCase() == lb) {
-                const rawLeaderboard = await Levels.fetchLeaderboard(message.guild.id, 10)
-                if (rawLeaderboard.length < 1) return reply('Nobody has any XP, so there is no leaderboard, try sending a message!')
-
-                const newLeaderboard = Levels.computeLeaderboard(client, rawLeaderboard)
-
-                const lbmap = (await newLeaderboard).map(e => `${e.position}. ${e.username}#${e.discriminator}\nLevel: ${e.level}\nXP: ${e.xp.toLocaleString()}`)
-                var LeaderboardEmbed = new Discord.MessageEmbed()
-                    .setTitle('🏆 Leaderboard 🏆')
-                    .setColor('BLUE')
-                    .setDescription(`${lbmap.join("\n\n")}`)
-                message.channel.send(LeaderboardEmbed)
-            }
-        } catch (e) {
-            console.log('discordClient message: ' + e);
-        }
     })
-client.on('voiceStateUpdate', (oldMember, newMember) => {
-    if (oldMember.channelID !== null && newMember.channelID === null) {}
-})
-client.on('message', (message) => {
+/*client.on('message', (message) => {
     if (message.author.bot) return;
     API_KEY = process.env.PERSPECTIVE_API_KEY
-    DISCOVERY_URL = 'https://commentanalyzer.googleapis.com/$discovery/rest?version=v1alpha1'
+    DISCOVERY_URL = 'https://commentanalyzer.googleapis.com/v1alpha1/comments:analyze'
     google.discoverAPI(DISCOVERY_URL)
         .then(client => {
             const analyzeRequest = {
@@ -533,16 +515,20 @@ client.on('message', (message) => {
         .catch(err => {
             throw err;
         })
-})
+})*/
 client.on("guildCreate", function (guild) {
         let defaultChannel = "";
-        guild.channels.cache.forEach((channel) => {
-            if (channel.type == "text" && defaultChannel == "") {
-                if (channel.permissionsFor(guild.me).has("SEND_MESSAGES")) {
-                    defaultChannel = channel;
+        if (guild.channels.cache.find(c => c.name = 'general')) {
+            defaultChannel = guild.channels.cache.get(c => c.name = 'general')
+        } else {
+            guild.channels.cache.forEach((channel) => {
+                if (channel.type == "text" && defaultChannel == "") {
+                    if (channel.permissionsFor(guild.me).has("SEND_MESSAGES")) {
+                        defaultChannel = channel;
+                    }
                 }
-            }
-        })
+            })
+        }
         const joinembed = new Discord.MessageEmbed()
             .setTitle('Hello!')
             .setColor('GREEN')
@@ -567,6 +553,8 @@ client.on("guildCreate", function (guild) {
         defaultChannel.send(joinembed)
     }),
     client.on('message', async (message) => {
+        if (message.author.bot) return;
+        if (message.guild === null) return;
         if (await db.has(`swear-${message.guild.id}`) === false) return
         if (swearjar.profane(message.content)) {
             if (await db.has(`censor-${message.guild.id}`) === false) {
@@ -624,6 +612,8 @@ client.on("guildCreate", function (guild) {
         }
     })
 client.on('message', async (message) => {
+    if (message.guild === null) return;
+    if (message.author.bot) return;
     if (await db.has(`onewordonly-${message.guild.id}-${message.channel.id}`)) {
         if (message.content.includes(' ')) {
             if (message.author.bot) return;
@@ -678,7 +668,7 @@ function oneworddelete1(message) {
 }
 client.on('messageDelete', async (messageDelete) => {
     if (!messageDelete.guild) return;
-    if (message.author.bot) return;
+    if (messageDelete.author.bot) return;
     if (messageDelete.mentions.users.first() === undefined && messageDelete.mentions.roles.first() === undefined) return;
     var delusermentions = messageDelete.mentions.users.array()
     var delrolementions = messageDelete.mentions.roles.array()
@@ -714,6 +704,23 @@ client.on('messageDelete', async (messageDelete) => {
         messageDelete.channel.send(delembed)
     }
 })
+client.on('messageUpdate', async (oldMessage, messageDelete) => {
+    if (!messageDelete.guild) return;
+    if (oldMessage.author.bot) return;
+    if (messageDelete.mentions.users.first() === undefined && messageDelete.mentions.roles.first() === undefined) return;
+    var delusermentions = messageDelete.mentions.users.array()
+    var delrolementions = messageDelete.mentions.roles.array()
+    var delmentions = [].concat(delusermentions, delrolementions)
+    if (delmentions.length === 0) return;
+    else {
+        const editembed = new Discord.MessageEmbed()
+            .setTitle('Ghost Ping!')
+            .setColor('RED')
+            .setDescription(`Ghost ping detected!\n<@${messageDelete.author.id}> just pinged ${delmentions.join(', ')} and then someone edited the message!`)
+            .addField('Message content', `New Content: ||${messageDelete.content}||, Old Content: ||${oldMessage.content}||`)
+        messageDelete.channel.send(editembed)
+    }
+})
 client.on('guildMemberUpdate', (before, after) => {
 
     if (after.user.id !== "782233856572784680") return;
@@ -725,6 +732,10 @@ client.on('guildMemberUpdate', (before, after) => {
         after.setNickname('GamerCentral')
     }, 10000)
 });
+client.on('guildMemberAdd', async (member) => {
+    if (await db.has(`captcha-${member.guild.id}`) === false) return;
+    captchacheck(member)
+})
 client.ws.on('INTERACTION_CREATE', async (interaction) => {
     const command = interaction.data.name.toLowerCase()
     const args = interaction.data.options
