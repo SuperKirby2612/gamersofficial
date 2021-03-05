@@ -56,7 +56,12 @@ module.exports = {
                         c.setRateLimitPerUser(5)
                         await db.set(`captcha-channelid-${message.guild.id}`, c.id)
                     })
-                    message.channel.send('Captcha has been activated! WARNING: THIS PROCESS IS ONLY MANUALLY REVERSIBLE! ALSO, ANY PRIVATE CHANNELS HAVE BEEN UNLOCKED TO EVERYONE, SO IF YOU HAVE ANY PRIVATE CHANNELS, RE-PRIVATE THEM NOW!')
+                    message.guild.members.cache.forEach(async (m) => {
+                        var croleid = await db.get(`captcha-roleid-${message.guild.id}`)
+                        var crole = message.guild.roles.cache.get(r => r.id === croleid)
+                        m.roles.set(crole)
+                    })
+                    message.channel.send('Captcha has been activated! All members that are already in the server have been verified! WARNING: ANY PRIVATE CHANNELS HAVE BEEN UNLOCKED TO THE VERIFIED ROLE, SO IF YOU HAVE ANY PRIVATE CHANNELS, RE-PRIVATE THEM NOW!')
                 })
                 rolecollector.on('end', collected => {
                     if (collected.size === 0) return message.channel.send('You didn\'t reply in time so I cancelled the captcha process.')
@@ -65,9 +70,15 @@ module.exports = {
         }
         if (args = ['off', 'Off', 'OFF', 'deactivate', 'Deactivate', 'DEACTIVATE']) {
             if (await db.has(`captcha-${message.guild.id}`) === true) {
-
+                await message.guild.channels.cache.forEach(c => {
+                    c.updateOverwrite(c.guild.roles.everyone, {
+                        VIEW_CHANNEL: true
+                    });
+                })
+                var channel = await db.get(`captcha-channelid-${message.guild.id}`)
+                (message.guild.channels.cache.get(r => r.id = channel)).delete()
                 await db.delete(`captcha-${message.guild.id}`)
-                message.channel.send('Captcha has been deactivated! WARNING: THIS DID NOT SET ALL CHANNELS BACK TO VIEWABLE. YOU WILL HAVE TO DO THIS MANUALLY!')
+                message.channel.send('Captcha has been deactivated! WARNING: THIS SET ALL CHANNELS TO VIEWABLE, IF YOU HAVE ANY PRIVATE CHANNELS RE-PRIVATE THEM NOW!')
             }
 
         }

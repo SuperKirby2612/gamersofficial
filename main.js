@@ -114,6 +114,10 @@ const lookup = require('country-data').lookup;
 
 const newsapi = require('newsapi')
 
+global.XMLHttpRequest = require("xmlhttprequest");
+
+var xbox = require('node-xbox')(process.env.XAPI_KEY);
+
 const captchacheck = require('./utils/captcha')
 
 const Twitter = require('twitter');
@@ -140,7 +144,7 @@ const distube = new Distube(client, {
     emitNewSongOnly: true
 })
 
-client.on('ready', () => {
+client.on('ready', async () => {
     console.log(`Logged in as ${client.user.tag}!`)
     new WOKcommands(client, 'commands', 'features')
         .setMongoPath(process.env.MONGO_URI)
@@ -274,6 +278,8 @@ client.on('ready', () => {
             }
         });
     }
+    var xboxonline = require('./utils/xbox')
+    xboxonline()
     client.guilds.cache.forEach(async (guild) => {
         guild.channels.cache.forEach(async (channel) => {
             if (await db.has(`tweetstream-${guild.id}-${channel.id}`)) {
@@ -393,29 +399,29 @@ client.on('message', async (message) => {
 })
 
 client.on('message', async (message) => {
-        // Error: Cannot read property 'id' of null, Reason: The code is reading 'message' as the DM that it sends at line 175, Fixed: Yes
-        if (message.guild === null) return;
-        if (message.author.bot) return;
-        const messageArray = message.content.split(" ")
-        const cmd = messageArray[0]
-        const args = messageArray.slice(1)
-        const code = message.content.split('discord.gg/')[1];
-        if (await db.has(`antiinvite-${message.guild.id}`) === false) return;
-        if (!message.guild.me.hasPermission("MANAGE_MESSAGES")) return;
-        if (message.content.includes('discord.gg/')) {
-            const isServerInvite = await isInvite(message.guild, code)
-            var randomnum = Math.floor(Math.random() * 9999) + 1
-            if (!isServerInvite) {
-                message.delete()
-                const antiinviteembed = new Discord.MessageEmbed()
-                    .setTitle('Anti-Invite Warning!')
-                    .setColor('RED')
-                    .setDescription('You are not allowed to send invites in this server unless you have the MANAGE MESSAGES permission! If you think this is a mistake, please contact one of the admins and show them your message!')
-                    .addField('Your message', message.content)
-                message.author.send(antiinviteembed)
-            }
+    // Error: Cannot read property 'id' of null, Reason: The code is reading 'message' as the DM that it sends at line 175, Fixed: Yes
+    if (message.guild === null) return;
+    if (message.author.bot) return;
+    const messageArray = message.content.split(" ")
+    const cmd = messageArray[0]
+    const args = messageArray.slice(1)
+    const code = message.content.split('discord.gg/')[1];
+    if (await db.has(`antiinvite-${message.guild.id}`) === false) return;
+    if (!message.guild.me.hasPermission("MANAGE_MESSAGES")) return;
+    if (message.content.includes('discord.gg/')) {
+        const isServerInvite = await isInvite(message.guild, code)
+        var randomnum = Math.floor(Math.random() * 9999) + 1
+        if (!isServerInvite) {
+            message.delete()
+            const antiinviteembed = new Discord.MessageEmbed()
+                .setTitle('Anti-Invite Warning!')
+                .setColor('RED')
+                .setDescription('You are not allowed to send invites in this server unless you have the MANAGE MESSAGES permission! If you think this is a mistake, please contact one of the admins and show them your message!')
+                .addField('Your message', message.content)
+            message.author.send(antiinviteembed)
         }
-    })
+    }
+})
 /*client.on('message', (message) => {
     if (message.author.bot) return;
     API_KEY = process.env.PERSPECTIVE_API_KEY
@@ -668,8 +674,8 @@ function oneworddelete1(message) {
 }
 client.on('messageDelete', async (messageDelete) => {
     if (!messageDelete.guild) return;
-    if (messageDelete.author.bot) return;
     if (messageDelete.mentions.users.first() === undefined && messageDelete.mentions.roles.first() === undefined) return;
+    if (messageDelete.author.bot) return;
     var delusermentions = messageDelete.mentions.users.array()
     var delrolementions = messageDelete.mentions.roles.array()
     var delmentions = [].concat(delusermentions, delrolementions)
@@ -708,6 +714,7 @@ client.on('messageUpdate', async (oldMessage, messageDelete) => {
     if (!messageDelete.guild) return;
     if (oldMessage.author.bot) return;
     if (messageDelete.mentions.users.first() === undefined && messageDelete.mentions.roles.first() === undefined) return;
+    if (oldMessage.mentions.users.first() === undefined) return;
     var delusermentions = messageDelete.mentions.users.array()
     var delrolementions = messageDelete.mentions.roles.array()
     var delmentions = [].concat(delusermentions, delrolementions)

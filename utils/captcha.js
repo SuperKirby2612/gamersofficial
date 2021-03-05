@@ -5,8 +5,11 @@ const pclient = pexels.createClient(process.env.PEXELS_KEY)
 const Discord = require('discord.js')
 
 async function captchacheck(member = Discord.GuildMember) {
-    setTimeout(() => {
+    setTimeout(async () => {
         const captchapromise = new Promise(async (res, rej) => {
+            if (await db.has(`captcha-${member.guild.id}`) === false) return () => {
+                rej('Something went wrong...')
+            }
             const db = require('../db')
             const cqueryarray = ['tiger', 'apple', 'banana', 'tree', 'lion', 'pickaxe', 'baloon', 'camera', 'wrench', 'pen', 'phone', 'snowglobe', 'piano', 'pencil', 'bike']
             const cquery = cqueryarray[Math.floor(Math.random() * cqueryarray.length) + 1]
@@ -40,40 +43,13 @@ async function captchacheck(member = Discord.GuildMember) {
                             time: 5 * 1000 * 60
                         })
                         captchacollector.on('collect', async (m) => {
-                            if (m.content === 'yes' && captchaanswer === 'yes') {
+                            if (m.content.toLowerCase() === 'yes' && captchaanswer === 'yes') {
                                 var croleid = await db.get(`captcha-roleid-${member.guild.id}`)
                                 var crole = member.guild.roles.cache.get(r => r.id === croleid)
                                 member.roles.set(crole)
                                 m.channel.send(`You passed the captcha! You can now access the whole of **${member.guild.name}**!`)
                                 rej()
-                            } else if (m.content === 'yes' && captchaanswer === 'no') {
-                                if (await db.has(`captchaincorrect-${m.author.id}`)) {
-                                    var randomcode = randomdigit(6)
-                                    const captchaincorrectembed = new Discord.MessageEmbed()
-                                        .setTitle('Captcha Failure')
-                                        .setDescription('It seems like you got the answer incorrect twice! (Or maybe I was wrong!). Try entering this code in the verification channel of the guild you are getting verified for!')
-                                        .addField('Code', `\`${randomcode}\``)
-                                        .setColor('RED')
-                                    msg.channel.send(captchaincorrectembed)
-                                    await db.delete(`captchaincorrect-${m.author.id}`)
-                                    var codecollector = cchannel1.createMessageCollector(captchafilter, {
-                                        time: 5 * 1000 * 60,
-                                        max: 1
-                                    })
-                                    codecollector.on('collect', async (m) => {
-                                        if (randomcode !== m) {
-                                            m.channel.send(`Sorry <@${member.user.id}>! You failed the captcha because you typed the incorrect code!`)
-                                            member.kick('Failed Captcha')
-                                            rej('Incorrect code')
-                                        }
-                                    })
-                                } else {
-                                    m.channel.send('Incorrect answer! Although, we all make mistakes sometimes! I will give you another chance!')
-                                    await db.set(`captchaincorrect-${m.author.id}`, 'true')
-                                    captchacheck(member)
-                                    rej('Incorrect answer')
-                                }
-                            } else if (m.content === 'no' && captchaanswer === 'yes') {
+                            } else if (m.content.toLowerCase() === 'yes' && captchaanswer === 'no') {
                                 if (await db.has(`captchaincorrect-${m.author.id}`)) {
                                     var randomcode = randomdigit(6)
                                     const captchaincorrectembed = new Discord.MessageEmbed()
@@ -98,13 +74,44 @@ async function captchacheck(member = Discord.GuildMember) {
                                     m.channel.send('Incorrect answer! Although, we all make mistakes sometimes! I will give you another chance!')
                                     await db.set(`captchaincorrect-${m.author.id}`, 'true')
                                     captchacheck(member)
+                                    rej('Incorrect answer')
                                 }
-                            } else if (m.content === 'no' && captchaanswer === 'no') {
+                            } else if (m.content.toLowerCase() === 'no' && captchaanswer === 'yes') {
+                                if (await db.has(`captchaincorrect-${m.author.id}`)) {
+                                    var randomcode = await randomdigit(6)
+                                    const captchaincorrectembed = new Discord.MessageEmbed()
+                                        .setTitle('Captcha Failure')
+                                        .setDescription('It seems like you got the answer incorrect twice! (Or maybe I was wrong!). Try entering this code in the verification channel of the guild you are getting verified for!')
+                                        .addField('Code', `\`${randomcode}\``)
+                                        .setColor('RED')
+                                    msg.channel.send(captchaincorrectembed)
+                                    await db.delete(`captchaincorrect-${m.author.id}`)
+                                    var codecollector = cchannel1.createMessageCollector(captchafilter, {
+                                        time: 5 * 1000 * 60,
+                                        max: 1
+                                    })
+                                    codecollector.on('collect', async (m) => {
+                                        if (randomcode !== m.content) {
+                                            m.channel.send(`Sorry <@${member.user.id}>! You failed the captcha because you typed the incorrect code!`)
+                                            member.kick('Failed Captcha')
+                                            rej('Incorrect code')
+                                        }
+                                    })
+                                } else {
+                                    m.channel.send('Incorrect answer! Although, we all make mistakes sometimes! I will give you another chance!')
+                                    await db.set(`captchaincorrect-${m.author.id}`, 'true')
+                                    captchacheck(member)
+                                }
+                            } else if (m.content.toLowerCase() === 'no' && captchaanswer === 'no') {
                                 var croleid = await db.get(`captcha-roleid-${member.guild.id}`)
                                 var crole = member.guild.roles.cache.get(r => r.id === croleid)
                                 member.roles.set(crole)
                                 m.channel.send(`You passed the captcha! You can now access the whole of **${member.guild.name}**!`)
                                 rej()
+                            } else {
+                                m.channel.send('That wasn\'t one of the supported answers!')
+                                member.kick('Failed Captcha')
+                                rej('Unsupported Answer')
                             }
                         })
                         captchacollector.on('end', async (collected) => {
