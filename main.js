@@ -278,8 +278,6 @@ client.on('ready', async () => {
             }
         });
     }
-    var xboxonline = require('./utils/xbox')
-    xboxonline()
     client.guilds.cache.forEach(async (guild) => {
         guild.channels.cache.forEach(async (channel) => {
             if (await db.has(`tweetstream-${guild.id}-${channel.id}`)) {
