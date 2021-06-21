@@ -8,7 +8,6 @@ module.exports = {
     description: "this is a ping command!",
     category: 'Fun',
     async execute(message, args, client, instance) {
-        message.channel.send('pong!');
-        captchacheck(message.member)
+        message.channel.send("Pong!")
     }
 }

@@ -59,6 +59,10 @@ const Discord = require('discord.js')
 const Distube = require('distube')
 const client = new Discord.Client({
     partials: ['MESSAGE', 'REACTION'],
+    disableMentions: "everyone",
+    ws: {
+        intents: ["GUILDS", "GUILD_BANS", "GUILD_EMOJIS", "GUILD_INTEGRATIONS", "GUILD_INVITES", "GUILD_MEMBERS", "GUILD_MESSAGES", "GUILD_MESSAGE_REACTIONS", "GUILD_MESSAGE_TYPING", "GUILD_PRESENCES", "GUILD_VOICE_STATES", "GUILD_WEBHOOKS", "DIRECT_MESSAGES", "DIRECT_MESSAGE_REACTIONS", "DIRECT_MESSAGE_TYPING"]
+    }
 })
 exports.client = client
 const PREFIX = "-g"
@@ -102,6 +106,12 @@ const texttoimage = require('text-to-image')
 
 const request = require('node-superfetch')
 
+var DDG = require('node-ddg-api').DDG;
+
+const ddg = new DDG('gamersofficial');
+
+exports.ddg = ddg
+
 const weather = require('weather-js')
 
 const swearjar = require('swearjar_modified')
@@ -113,6 +123,13 @@ const countries = require('country-data').countries
 const lookup = require('country-data').lookup;
 
 const newsapi = require('newsapi')
+
+const disbut = require('discord-buttons')(client)
+
+const {
+    MessageButton,
+    MessageActionRow
+} = require('discord-buttons');
 
 global.XMLHttpRequest = require("xmlhttprequest");
 

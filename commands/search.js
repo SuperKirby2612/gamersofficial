@@ -1,41 +1,46 @@
 const Discord = require("discord.js")
 const request = require("node-superfetch")
 const dotenv = require('dotenv')
+const {
+    ddg
+} = require('../main')
 
 module.exports = {
     name: 'Search',
     description: 'Searches the world wide web for a specified query!',
     category: 'Fun',
-    aliases: ['sch', 'google', 'lookup'],
+    aliases: ['sch', 'google', 'lookup', 'ddg', 'duckduckgo'],
     async execute(message, args, client) {
-        let googleKey = process.env.googletok
-        let csx = "984e3a39fc150ebad"
-        let query = args.join(" ")
-        let result;
+
+        var query = args.join()
 
         if (!query) return message.channel.send("Please enter a search!")
-        let href = await search(query)
+        var href = search(query)
+
+        if (href === false) return;
 
         const searchembed = new Discord.MessageEmbed()
-        .setTitle(href.title)
-        .setDescription(href.snippet)
-        .setImage(href.pagemap && href.pagemap.cse_thumbnail ? href.pagemap.cse_thumbnail[0].src : null)
-        .setURL(href.link)
-        .setColor("GREEN")
-        .setFooter("Powered by Google™")
+            .setTitle(href.heading)
+            .setDescription(href.AbstractText)
+            .setImage(href.image)
+            .setURL(href.AbstractURL)
+            .setColor("GREEN")
+            .setFooter("Powered by DuckDuckGo™")
 
         return message.channel.send(searchembed)
 
         async function search(query) {
-            const { body } = await request.get("https://www.googleapis.com/customsearch/v1").query({
-                key: googleKey, cx: csx, safe: "off", q: query
-            })
-
-            if(!body.items) {
-                message.channel.send('Sorry, I couldn\'t find anything that matches your query!')
-                return null
-            }
-            return body.items[0]
+            ddg.instantAnswer(query, {
+                skip_disambig: '0'
+            }, function (err, body) {
+                if (err || body.meta.description === 'testing') {
+                    message.channel.send('Sorry, something went wrong.')
+                    return false
+                } else {
+                    console.log(body);
+                    return body
+                }
+            });
         }
     }
 }

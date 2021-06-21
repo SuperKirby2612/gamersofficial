@@ -10,7 +10,6 @@ async function captchacheck(member = Discord.GuildMember) {
             if (await db.has(`captcha-${member.guild.id}`) === false) return () => {
                 rej('Something went wrong...')
             }
-            const db = require('../db')
             const cqueryarray = ['tiger', 'apple', 'banana', 'tree', 'lion', 'pickaxe', 'baloon', 'camera', 'wrench', 'pen', 'phone', 'snowglobe', 'piano', 'pencil', 'bike']
             const cquery = cqueryarray[Math.floor(Math.random() * cqueryarray.length) + 1]
             const randomquery = cqueryarray[Math.floor(Math.random() * cqueryarray.length) + 1]
