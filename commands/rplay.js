@@ -15,18 +15,18 @@ module.exports = {
                 if (message.author.id === '771374646540501032') {
                     // Kamil
                     const knum = await db.get("currentrnum-k")
-                    const stream = fs.createReadStream(`D:/VoiceExp/kamil-${knum}.pcm`)
+                    const kstream = fs.createReadStream(`D:/VoiceExp/kamil-${knum}.pcm`)
 
-                    const dispatcher = connection.play(stream, {
+                    const kdispatcher = connection.play(kstream, {
                         type: 'converted'
                     })
 
-                    dispatcher.on('finish', () => {
+                    kdispatcher.on('finish', () => {
                         message.member.voice.channel.leave()
                         message.channel.send('I finished playing back your recording.')
                     })
                 }
-                else if (message.author.id === '695228246966534255') {
+                if (message.author.id === '695228246966534255') {
                     //Luca
                     const lnum = await db.get("currentrnum-l")
                     const stream = fs.createReadStream(`D:/VoiceExp/luca-${lnum}.pcm`)
@@ -39,7 +39,7 @@ module.exports = {
                         message.member.voice.channel.leave()
                         message.channel.send('I finished playing back your recording.')
                     })
-                } else {
+                } else if (message.author.id !== '695228246966534255' || message.author.id !== '771374646540501032'){
                     message.member.voice.channel.leave()
                     message.channel.send('Sorry, right now this feature is in experimental mode and only selected people can use it!')
                 }

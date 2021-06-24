@@ -177,7 +177,7 @@ client.on('ready', async () => {
             button.channel.send('Ok, click the button whenever you want to record your voice ^-^')
         }
     });
-    setTimeout(async () => {
+    setInterval(async () => {
         let channel = client.channels.fetch("856953236846280744")
             .then(async (channel) => {
                 let myButton = new MessageButton()
@@ -193,7 +193,7 @@ client.on('ready', async () => {
                     .addComponent(myButton2);
                 channel.send("<@771374646540501032> <@695228246966534255>, It's time for your daily recording. Would you like to start? (Just join a vc and press the button!)", row)
             })
-    }, 8640)
+    }, 86400000)
     if ('fgjfjgfjgfjgf' === 'f') {
         client.api.applications(client.user.id).commands.post({
             data: {
