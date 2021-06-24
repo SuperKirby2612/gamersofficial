@@ -59,9 +59,8 @@ const Discord = require('discord.js')
 const Distube = require('distube')
 const client = new Discord.Client({
     partials: ['MESSAGE', 'REACTION'],
-    disableMentions: "everyone",
     ws: {
-        intents: ["GUILDS", "GUILD_BANS", "GUILD_EMOJIS", "GUILD_INTEGRATIONS", "GUILD_INVITES", "GUILD_MEMBERS", "GUILD_MESSAGES", "GUILD_MESSAGE_REACTIONS", "GUILD_MESSAGE_TYPING", "GUILD_PRESENCES", "GUILD_VOICE_STATES", "GUILD_WEBHOOKS", "DIRECT_MESSAGES", "DIRECT_MESSAGE_REACTIONS", "DIRECT_MESSAGE_TYPING"]
+        intents: Discord.Intents.ALL
     }
 })
 exports.client = client
@@ -166,6 +165,35 @@ client.on('ready', async () => {
     new WOKcommands(client, 'commands', 'features')
         .setMongoPath(process.env.MONGO_URI)
         .setDefaultPrefix('.')
+    client.on('clickButton', async (button) => {
+        if (button.id === 'yes') {
+            client.channels.fetch("856953236846280744")
+            .then((channel) => {
+            channel.messages.fetch("856954565890408488")
+            client.commands.get('record').execute(message, args);
+            })
+        }
+        if (button.id === 'no') {
+            button.channel.send('Ok, click the button whenever you want to record your voice ^-^')
+        }
+    });
+    setTimeout(async () => {
+        let channel = client.channels.fetch("856953236846280744")
+            .then(async (channel) => {
+                let myButton = new MessageButton()
+                    .setLabel("Yes")
+                    .setStyle("green")
+                    .setID("yes")
+                let myButton2 = new MessageButton()
+                    .setLabel("No")
+                    .setStyle("red")
+                    .setID("no")
+                var row = new MessageActionRow()
+                    .addComponent(myButton)
+                    .addComponent(myButton2);
+                channel.send("<@771374646540501032> <@695228246966534255>, It's time for your daily recording. Would you like to start? (Just join a vc and press the button!)", row)
+            })
+    }, 8640)
     if ('fgjfjgfjgfjgf' === 'f') {
         client.api.applications(client.user.id).commands.post({
             data: {
