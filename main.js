@@ -130,10 +130,6 @@ const {
     MessageActionRow
 } = require('discord-buttons');
 
-global.XMLHttpRequest = require("xmlhttprequest");
-
-var xbox = require('node-xbox')(process.env.XAPI_KEY);
-
 const captchacheck = require('./utils/captcha')
 
 const Twitter = require('twitter');
