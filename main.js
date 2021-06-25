@@ -190,7 +190,7 @@ client.on('ready', async () => {
                 channel.send("<@771374646540501032> <@695228246966534255>, It's time for your daily recording. Would you like to start? (Just join a vc and press the button!)", row)
             })
     }, 86400000)
-    if ('fgjfjgfjgfjgf' === 'f') {
+    if (true === true) {
         client.api.applications(client.user.id).commands.post({
             data: {
                 name: 'help',
@@ -783,6 +783,7 @@ client.on('guildMemberAdd', async (member) => {
     captchacheck(member)
 })
 client.ws.on('INTERACTION_CREATE', async (interaction) => {
+    console.log(interaction)
     const command = interaction.data.name.toLowerCase()
     const args = interaction.data.options
 

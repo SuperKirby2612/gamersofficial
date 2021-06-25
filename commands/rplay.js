@@ -39,10 +39,7 @@ module.exports = {
                         message.member.voice.channel.leave()
                         message.channel.send('I finished playing back your recording.')
                     })
-                } else if (message.author.id !== '695228246966534255' || message.author.id !== '771374646540501032'){
-                    message.member.voice.channel.leave()
-                    message.channel.send('Sorry, right now this feature is in experimental mode and only selected people can use it!')
-                }
+                } 
             })
         } catch (e) {
             message.member.voice.channel.leave()
