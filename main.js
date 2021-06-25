@@ -161,18 +161,6 @@ client.on('ready', async () => {
     new WOKcommands(client, 'commands', 'features')
         .setMongoPath(process.env.MONGO_URI)
         .setDefaultPrefix('.')
-    client.on('clickButton', async (button) => {
-        if (button.id === 'yes') {
-            client.channels.fetch("856953236846280744")
-            .then((channel) => {
-            channel.messages.fetch("856954565890408488")
-            client.commands.get('record').execute(message, args);
-            })
-        }
-        if (button.id === 'no') {
-            button.channel.send('Ok, click the button whenever you want to record your voice ^-^')
-        }
-    });
     setInterval(async () => {
         let channel = client.channels.fetch("856953236846280744")
             .then(async (channel) => {
@@ -426,6 +414,44 @@ const isInvite = async (guild, code) => {
 const lb = PREFIX + 'lb'
 
 const db = require('./db');
+client.on('clickButton', async (button) => {
+    if (button.id === 'yes') {
+        const member = await button.clicker.member.guild.members.cache.get(button.clicker.user.id)
+        const voicechannel = member.voice.channel
+        if (!voicechannel) return button.message.channel.send("You need to be in a voice channel to use that command!")
+
+        const connection = await member.voice.channel.join()
+        const receiver = connection.receiver.createStream(member, {
+            mode: 'pcm',
+            end: "silence"
+        })
+        if (button.clicker.user.id === '771374646540501032') {
+            const knum = await db.get("currentrnum-k")
+            await db.set("currentrnum-k", (knum + 1))
+            var knumfile = knum + 1
+            const writer = receiver.pipe(fs.createWriteStream(`D:/VoiceExp/kamil-${knumfile}.pcm`))
+            writer.on("finish", () => {
+                member.voice.channel.leave()
+                button.message.channel.send("Finished recording. Saved to D:/VoiceExp. To play back audio, please use .rplay. To play back the first audio, please use .rplayfirst.")
+            })
+        } else if (button.clicker.user.id === '695228246966534255') {
+            const lnum = await db.get("currentrnum-l")
+            await db.set("currentrnum-l", (lnum + 1))
+            var lnumfile = lnum + 1
+            const writer = receiver.pipe(fs.createWriteStream(`D:/VoiceExp/luca-${lnumfile}.pcm`))
+            writer.on("finish", () => {
+                member.voice.channel.leave()
+                button.message.channel.send("Finished recording. Saved to D:/VoiceExp. To play back audio, please use .rplay. To play back the first audio, please use .rplayfirst.")
+            })
+        } else {
+            return button.message.channel.send('Sorry, right now this feature is in experimental mode and only selected people can use it!')
+        }
+    }
+    else if (button.id === 'no') {
+        button.message.channel.send('Ok, click the button whenever you want to record your voice ^-^')
+    }
+    button.defer()
+});
 client.on('message', async (message) => {
     if (message.guild === null) return;
     if (message.author.bot) return;
@@ -783,7 +809,7 @@ client.on('guildMemberAdd', async (member) => {
     captchacheck(member)
 })
 client.ws.on('INTERACTION_CREATE', async (interaction) => {
-    console.log(interaction)
+    if (interaction.type === 3) return;
     const command = interaction.data.name.toLowerCase()
     const args = interaction.data.options
 

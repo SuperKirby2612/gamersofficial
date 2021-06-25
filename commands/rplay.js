@@ -15,6 +15,7 @@ module.exports = {
                 if (message.author.id === '771374646540501032') {
                     // Kamil
                     const knum = await db.get("currentrnum-k")
+                    console.log(knum)
                     const kstream = fs.createReadStream(`D:/VoiceExp/kamil-${knum}.pcm`)
 
                     const kdispatcher = connection.play(kstream, {
@@ -26,7 +27,7 @@ module.exports = {
                         message.channel.send('I finished playing back your recording.')
                     })
                 }
-                if (message.author.id === '695228246966534255') {
+                else {
                     //Luca
                     const lnum = await db.get("currentrnum-l")
                     const stream = fs.createReadStream(`D:/VoiceExp/luca-${lnum}.pcm`)
