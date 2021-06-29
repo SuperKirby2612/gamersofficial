@@ -16,7 +16,7 @@ module.exports = {
                     // Kamil
                     const knum = await db.get("currentrnum-k")
                     console.log(knum)
-                    const kstream = fs.createReadStream(`D:/VoiceExp/kamil-${knum}.pcm`)
+                    const kstream = fs.createReadStream(`../VoiceExp/kamil-${knum}.pcm`)
 
                     const kdispatcher = connection.play(kstream, {
                         type: 'converted'
@@ -30,7 +30,7 @@ module.exports = {
                 else {
                     //Luca
                     const lnum = await db.get("currentrnum-l")
-                    const stream = fs.createReadStream(`D:/VoiceExp/luca-${lnum}.pcm`)
+                    const stream = fs.createReadStream(`../VoiceExp/luca-${lnum}.pcm`)
 
                     const dispatcher = connection.play(stream, {
                         type: 'converted'

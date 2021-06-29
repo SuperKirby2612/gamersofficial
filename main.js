@@ -429,7 +429,7 @@ client.on('clickButton', async (button) => {
             const knum = await db.get("currentrnum-k")
             await db.set("currentrnum-k", (knum + 1))
             var knumfile = knum + 1
-            const writer = receiver.pipe(fs.createWriteStream(`D:/VoiceExp/kamil-${knumfile}.pcm`))
+            const writer = receiver.pipe(fs.createWriteStream(`./VoiceExp/kamil-${knumfile}.pcm`))
             writer.on("finish", () => {
                 member.voice.channel.leave()
                 button.message.channel.send("Finished recording. Saved to D:/VoiceExp. To play back audio, please use .rplay. To play back the first audio, please use .rplayfirst.")
@@ -438,7 +438,7 @@ client.on('clickButton', async (button) => {
             const lnum = await db.get("currentrnum-l")
             await db.set("currentrnum-l", (lnum + 1))
             var lnumfile = lnum + 1
-            const writer = receiver.pipe(fs.createWriteStream(`D:/VoiceExp/luca-${lnumfile}.pcm`))
+            const writer = receiver.pipe(fs.createWriteStream(`./VoiceExp/luca-${lnumfile}.pcm`))
             writer.on("finish", () => {
                 member.voice.channel.leave()
                 button.message.channel.send("Finished recording. Saved to D:/VoiceExp. To play back audio, please use .rplay. To play back the first audio, please use .rplayfirst.")

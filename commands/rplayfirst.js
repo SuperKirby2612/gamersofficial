@@ -13,22 +13,22 @@ module.exports = {
 
         try {
             await message.member.voice.channel.join().then(async (connection) => {
-                const firstttsdispatcher = connection.play('D:/VoiceExp/firstrec.mp3')
+                const firstttsdispatcher = connection.play('../VoiceExp/firstrec.mp3')
                 firstttsdispatcher.on('finish', () => {
                     setTimeout(async () => {
                         if (message.author.id === '771374646540501032') {
-                            const firststream = fs.createReadStream('D:/VoiceExp/kamil-1.pcm')
+                            const firststream = fs.createReadStream('../VoiceExp/kamil-1.pcm')
                             const firstdispatcher = connection.play(firststream, {
                                 type: 'converted'
                             })
                             firstdispatcher.on('finish', async () => {
                                 setTimeout(async () => {
-                                    const recentttsdispatcher = connection.play('D:/VoiceExp/latestrec.mp3')
+                                    const recentttsdispatcher = connection.play('../VoiceExp/latestrec.mp3')
                                     recentttsdispatcher.on('finish', async () => {
                                         setTimeout(async () => {
                                             // Kamil
                                             const knum = await db.get("currentrnum-k")
-                                            const stream = fs.createReadStream(`D:/VoiceExp/kamil-${knum}.pcm`)
+                                            const stream = fs.createReadStream(`../VoiceExp/kamil-${knum}.pcm`)
 
                                             const dispatcher = connection.play(stream, {
                                                 type: 'converted'
@@ -45,18 +45,18 @@ module.exports = {
                                 }, 1000)
                             })
                         } else if (message.author.id === '695228246966534255') {
-                            const firststream = fs.createReadStream('D:/VoiceExp/luca-1.pcm')
+                            const firststream = fs.createReadStream('../VoiceExp/luca-1.pcm')
                             const firstdispatcher = connection.play(firststream, {
                                 type: 'converted'
                             })
                             firstdispatcher.on('finish', async () => {
                                 setTimeout(async () => {
-                                    const recentttsdispatcher = connection.play('D:/VoiceExp/latestrec.mp3')
+                                    const recentttsdispatcher = connection.play('../VoiceExp/latestrec.mp3')
                                     recentttsdispatcher.on('finish', async () => {
                                         setTimeout(async () => {
                                             //Luca
                                             const lnum = await db.get("currentrnum-l")
-                                            const stream = fs.createReadStream(`D:/VoiceExp/luca-${lnum}.pcm`)
+                                            const stream = fs.createReadStream(`../VoiceExp/luca-${lnum}.pcm`)
 
                                             const dispatcher = connection.play(stream, {
                                                 type: 'converted'
