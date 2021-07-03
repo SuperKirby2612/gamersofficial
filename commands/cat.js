@@ -4,6 +4,7 @@ module.exports = {
     name: 'cat',
     description: "Sends a random picture of a cat! Syntax: -g cat",
     category: 'Fun',
+    slash: 'both',
     execute(message, args) {
         const bingus = Math.floor(Math.random() * 99) + 1
         if (bingus === 2) {

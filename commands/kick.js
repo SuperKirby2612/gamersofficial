@@ -2,6 +2,7 @@ module.exports = {
     name: 'Kick',
     description: 'Kicks a user. Syntax: -g kick <@user> <reason>',
     category: 'Moderation',
+    slash: 'both',
     execute(message, args, client) {
 
         if (!message.member.hasPermission("KICK_MEMBERS")) return message.channel.send(`Sorry <@${message.author.id}>, you need the permission \`KICK MEMBERS\` to ban people!`)

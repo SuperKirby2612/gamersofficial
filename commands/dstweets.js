@@ -4,6 +4,7 @@ module.exports = {
     name: 'dstweets',
     description: 'dstweets',
     category: 'Misc',
+    slash: 'both',
     async execute(message, args) {
         if (!message.member.hasPermission('MANAGE_CHANNELS')) return message.channel.send('Sorry, you don\'t have the correct permissions to do that! `(MANAGE_CHANNELS)`')
         var channel = message.mentions.channels.first() || message.channel

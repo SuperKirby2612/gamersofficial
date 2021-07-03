@@ -5,6 +5,7 @@ const canvacord = require('canvacord')
 module.exports = {
     description: 'Gives you your current rank level and xp!',
     category: 'XP',
+    slash: 'both',
     async execute(message, args) {
         const target = message.author
 

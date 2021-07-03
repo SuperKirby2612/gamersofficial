@@ -7,6 +7,7 @@ module.exports = {
     description: 'Searches Wikipedia for a specified query!',
     category: 'Fun',
     aliases: ['wikisch', 'wiki', 'wikipedia', 'wikisearch'],
+    slash: 'both',
     async execute(message, args, client) {
         let googleKey = process.env.googlewikitok
         let csx = "b8ae984500dc84811"

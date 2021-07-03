@@ -5,6 +5,7 @@ module.exports = {
     description: 'captcha',
     category: 'Moderation',
     aliases: ['antiraid'],
+    slash: 'both',
     async execute(message, args) {
         if (!message.member.hasPermission("MANAGE_CHANNELS")) return message.channel.send('Sorry, you don\'t have the correct permissions to do that! `(MANAGE CHANNELS)`')
         if (!message.guild.me.hasPermission("MANAGE_CHANNELS")) return message.channel.send('Sorry, I don\'t have the correct permissions to do that! `(MANAGE CHANNELS)`')

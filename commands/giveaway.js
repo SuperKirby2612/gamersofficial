@@ -7,6 +7,7 @@ module.exports = {
     description: 'gnew feature lol',
     category: 'Fun',
     aliases: ['giveawaynew', 'givenew', 'newgiveaway', 'newgive'],
+    slash: 'both',
     async execute(message, args) {
         if (!message.member.hasPermission('MANAGE_CHANNELS')) return message.channel.send('Sorry, you don\'t have the correct permissions to do that! `(MANAGE_CHANNELS)`')
         const filter = m => m.author.id === message.author.id

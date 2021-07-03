@@ -5,6 +5,7 @@ module.exports = {
     name: 'covid',
     description: 'Sends current covid-19 stats for the world.',
     category: 'Misc',
+    slash: 'both',
     async execute(message, args, client) {
         const covidStats = await covid.all()
 

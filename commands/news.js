@@ -10,6 +10,7 @@ module.exports = {
     name: 'news',
     description: 'news',
     category: 'Misc',
+    slash: 'both',
     async execute(message, args) {
         message.channel.startTyping()
         var time = new Date()

@@ -4,6 +4,7 @@ module.exports = {
     name: 'Poll',
     description: 'Makes an advanced poll. Syntax: -g poll',
     category: 'Misc',
+    slash: 'both',
     async execute(message, args, client) {
         let q = args.join(' ')
         if (!q) return message.channel.send('Incorrect syntax! Please state the question! Syntax: -g poll [Question]')

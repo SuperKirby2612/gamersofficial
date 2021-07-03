@@ -2,6 +2,7 @@ module.exports = {
     name: 'Ban',
     description: 'Bans a user. Syntax: -g ban <@user> <reason>',
     category: 'Moderation',
+    slash: 'both',
     execute(message, args, client) {
 
         if (!message.member.hasPermission("BAN_MEMBERS")) return message.channel.send(`Sorry <@${message.author.id}>, you need the permission \`BAN MEMBERS\` to ban people!`)

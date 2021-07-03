@@ -10,6 +10,7 @@ module.exports = {
     description: 'streamtweets',
     category: 'Misc',
     aliases: ['streamtweet', 'tweetstream', 'tweetsstream',],
+    slash: 'both',
     async execute(message, args) {
         if (!message.member.hasPermission('MANAGE_CHANNELS')) return message.channel.send('Sorry, you don\'t have the correct permissions to do that! `(MANAGE_CHANNELS)`')
         var hashtag = args[0]

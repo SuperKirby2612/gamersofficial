@@ -6,6 +6,7 @@ module.exports = {
     name: 'unlock',
     description: "Makes the `\@everyone` role able to type in the current channel (MODS ONLY) Syntax: -g unlock",
     category: 'Moderation',
+    slash: 'both',
     async execute(message, args) {
 
         if (!message.member.hasPermission("MANAGE_CHANNELS")) return message.channel.send('Sorry, you don\'t have the correct permissions to do that! `(MANAGE CHANNELS)`')

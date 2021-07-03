@@ -4,6 +4,7 @@ module.exports = {
     name: 'sendstartmsg',
     description: 'Sends the starting message again',
     category: 'Misc',
+    slash: 'both',
     async execute(message, args) {
         if (message.author.id !== '695228246966534255')
         var guild = message.guild

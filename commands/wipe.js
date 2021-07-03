@@ -3,6 +3,7 @@ module.exports = {
     description: "This command logs and wipes a channel (MOD ONLY). Syntax: -g wipe",
     category: 'Moderation',
     cooldown: '1m',
+    slash: 'both',
     async execute(message, args) {
 
         const member = message.guild.member(message.author);

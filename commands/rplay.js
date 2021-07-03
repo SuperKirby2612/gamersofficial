@@ -6,6 +6,7 @@ module.exports = {
     description: 'rplay',
     category: 'Fun',
     aliases: ['recordplay'],
+    slash: 'both',
     async execute(message, args) {
         const voicechannel = message.member.voice.channel
         if (!voicechannel) return message.channel.send('Sorry, you need to be in a VC to use that command!')

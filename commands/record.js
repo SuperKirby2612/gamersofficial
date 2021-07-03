@@ -16,6 +16,7 @@ module.exports = {
     category: 'Fun',
     aliases: ['rec'],
     cooldown: '2s',
+    slash: 'both',
     async execute(message, args) {
         const voicechannel = message.member.voice.channel
         if (!voicechannel) return message.channel.send("You need to be in a voice channel to use that command!")

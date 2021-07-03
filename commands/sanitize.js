@@ -6,6 +6,7 @@ module.exports = {
     description: 'Cleans a channel (Removes any innapropiate language from past messages)',
     category: 'Moderation',
     aliases: ['sanitise', 'clean'],
+    slash: 'both',
     async execute(message, args) {
         var channel = message.mentions.channels.first() || message.channel
         channel.send('🧹 Starting cleanup...')
@@ -79,7 +80,7 @@ async function checkMessages(msgtoedit, channel) {
                     message1.delete()
                 }
             })
-                msgtoedit.edit(`✨ Good news! We found disinfected all cases of Swearge in this channel!`)
+                msgtoedit.edit(`✨ Good news! We disinfected all cases of Swearge in this channel!`)
         }, 5000)
     })
 }

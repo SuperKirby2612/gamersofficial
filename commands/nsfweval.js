@@ -7,6 +7,7 @@ module.exports = {
     name: 'nsfweval',
     description: 'nsfweval',
     category: 'Moderation',
+    slash: 'both',
     async execute(message, args) {
         if (await db.has(`nsfw-${message.guild.id}`) === false) return;
         if (message.author.bot) return;

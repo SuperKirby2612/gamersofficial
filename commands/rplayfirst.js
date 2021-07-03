@@ -7,6 +7,7 @@ module.exports = {
     category: 'Fun',
     aliases: ['rpf', 'playfirst'],
     cooldown: '2s',
+    slash: 'both',
     async execute(message, args) {
         const voicechannel = message.member.voice.channel
         if (!voicechannel) return message.channel.send('Sorry, you need to be in a VC to use that command!')

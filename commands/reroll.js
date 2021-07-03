@@ -7,6 +7,7 @@ module.exports = {
     description: 'reroll',
     category: 'Fun',
     aliases: ['rerollgiveaway', 'rerollgive', 'givereroll', 'giveawayreroll', 'greroll'],
+    slash: 'both',
     async execute(message, args) {
         const filter = m => m.author.id === message.author.id
         message.channel.send('Would you like to cancel the most recent giveaway or a specific giveaway? (Respond with R for recnt or S for specific)')

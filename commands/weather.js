@@ -5,6 +5,7 @@ module.exports = {
     name: 'Weather',
     description: 'Sends the weather forecast of a specified city. Syntax: -g weather (City name). If you are not comfortable with sharing your city on public servers, you can always DM me!',
     category: 'Misc',
+    slash: 'both',
     async execute(message, args, client) {
         let city = args.join(" ")
         let degreetype = 'C'

@@ -4,6 +4,7 @@ module.exports = {
     name: 'Whois',
     description: 'Gives info about a specified user',
     category: 'Moderation',
+    slash: 'both',
     async execute(message, args, client) {
         const {
             guild,

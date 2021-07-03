@@ -5,6 +5,7 @@ module.exports = {
     name: 'meme',
     description: 'Sends a meme from r/memes.',
     category: 'Fun',
+    slash: 'both',
     async execute(message, args, client) {
         const memeembed = new Discord.MessageEmbed()
         got('https://www.reddit.com/r/memes/random/.json').then(response => {

@@ -156,6 +156,45 @@ const distube = new Distube(client, {
     emitNewSongOnly: true
 })
 
+setInterval(async () => {
+    var tadhg = client.users.cache.get("737633914146914354")
+    var sleeptimer = new Date()
+    var sleeptimerhour = sleeptimer.getHours()
+    var sleeptimerminute = sleeptimer.getMinutes()
+    if (sleeptimerhour === 22) {
+        if (tadhg.presence.status !== 'offline') {
+            await db.set("tadhgsleep", false)
+            tadhg.send(`😴 @<737633914146914354> Turn all devices off to sleep by ${sleeptimerhour + 1}:${sleeptimerminute}! If you need help sleeping, try <p sleep sounds 1h.`)
+            .catch(() => {
+                var server = client.guilds.cache.get("760129849154338827")
+                var channel = server.channels.cache.get("760130133658566667")
+                channel.send(`😴 @<737633914146914354> Turn all devices off to sleep by ${sleeptimerhour + 1}:${sleeptimerminute}! Also, unblock me or re-add me as a friend >:(`)
+            })
+        } else {
+            if (await db.get("tadhgsleep") === 'true') return;
+            tadhg.send(`😴 @<737633914146914354> Turn all devices off to sleep by ${sleeptimerhour + 1}:${sleeptimerminute}! If you are going to sleep, please reply with stop. If you need help sleeping, try <p sleep sounds 1h`)
+            .then((msg) => {
+                const filter = m => m.content === 'stop'
+                msg.channel.createMessageCollector(filter, {
+                    time: 120000,
+                    max: 1,
+                    errors: ['time']
+                })
+                .then(async (messages) => {
+                    if (messages.first().content === 'stop') {
+                        await db.set("tadhgsleep", true)
+                    }
+                })
+            })
+            .catch(() => {
+                var server = client.guilds.cache.get("760129849154338827")
+                var channel = server.channels.cache.get("760130133658566667")
+                channel.send(`😴 @<737633914146914354> Turn all devices off to sleep by ${sleeptimerhour + 1}:${sleeptimerminute}! Also, unblock me or re-add me as a friend >:(`)
+            })
+        }
+    }
+}, 300000)
+
 client.on('ready', async () => {
     console.log(`Logged in as ${client.user.tag}!`)
     new WOKcommands(client, 'commands', 'features')
@@ -446,8 +485,7 @@ client.on('clickButton', async (button) => {
         } else {
             return button.message.channel.send('Sorry, right now this feature is in experimental mode and only selected people can use it!')
         }
-    }
-    else if (button.id === 'no') {
+    } else if (button.id === 'no') {
         button.message.channel.send('Ok, click the button whenever you want to record your voice ^-^')
     }
     button.defer()

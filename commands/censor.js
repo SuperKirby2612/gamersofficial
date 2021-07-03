@@ -4,6 +4,7 @@ module.exports = {
     name: 'Censor',
     description: 'Toggles on/off censor for AntiSwear. Syntax: -g censor (Toggles between on and off e.x: -g censor (Output: On!), -g censor (Output: Off!))',
     category: 'Moderation',
+    slash: 'both',
     async execute(message, args, client) {
         if (!message.member.hasPermission("MANAGE_MESSAGES")) return message.channel.send('Sorry, you don\'t have the correct permissions to do that! `(MANAGE MESSAGES)`')
         if (!message.guild.me.hasPermission("MANAGE_MESSAGES")) return message.channel.send('Sorry, I don\'t have the correct permissions to do that! `(MANAGE MESSAGES)`')

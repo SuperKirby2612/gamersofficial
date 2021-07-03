@@ -10,6 +10,7 @@ module.exports = {
     description: 'Searches the world wide web for a specified query!',
     category: 'Fun',
     aliases: ['sch', 'google', 'lookup', 'ddg', 'duckduckgo'],
+    slash: 'both',
     async execute(message, args, client) {
 
         var query = args.join()
