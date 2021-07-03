@@ -163,16 +163,16 @@ setInterval(async () => {
     var sleeptimerminute = sleeptimer.getMinutes()
     if (sleeptimerhour === 22) {
         if (tadhg.presence.status !== 'offline') {
-            await db.set("tadhgsleep", false)
-            tadhg.send(`😴 @<737633914146914354> Turn all devices off to sleep by ${sleeptimerhour + 1}:${sleeptimerminute}! If you need help sleeping, try <p sleep sounds 1h.`)
+            await db.set("tadhgsleep", "false")
+            tadhg.send(`😴 <@737633914146914354> Turn all devices off to sleep by ${sleeptimerhour + 1}:${sleeptimerminute}! If you need help sleeping, try <p sleep sounds 1h in Gamers.`)
             .catch(() => {
                 var server = client.guilds.cache.get("760129849154338827")
                 var channel = server.channels.cache.get("760130133658566667")
-                channel.send(`😴 @<737633914146914354> Turn all devices off to sleep by ${sleeptimerhour + 1}:${sleeptimerminute}! Also, unblock me or re-add me as a friend >:(`)
+                channel.send(`😴 <@737633914146914354> Turn all devices off to sleep by ${sleeptimerhour + 1}:${sleeptimerminute}! Also, unblock me or re-add me as a friend >:(`)
             })
         } else {
             if (await db.get("tadhgsleep") === 'true') return;
-            tadhg.send(`😴 @<737633914146914354> Turn all devices off to sleep by ${sleeptimerhour + 1}:${sleeptimerminute}! If you are going to sleep, please reply with stop. If you need help sleeping, try <p sleep sounds 1h`)
+            tadhg.send(`😴 <@737633914146914354> Turn all devices off to sleep by ${sleeptimerhour + 1}:${sleeptimerminute}! If you are going to sleep, please reply with stop. If you need help sleeping, try <p sleep sounds 1h in Gamers`)
             .then((msg) => {
                 const filter = m => m.content === 'stop'
                 msg.channel.createMessageCollector(filter, {
@@ -189,7 +189,7 @@ setInterval(async () => {
             .catch(() => {
                 var server = client.guilds.cache.get("760129849154338827")
                 var channel = server.channels.cache.get("760130133658566667")
-                channel.send(`😴 @<737633914146914354> Turn all devices off to sleep by ${sleeptimerhour + 1}:${sleeptimerminute}! Also, unblock me or re-add me as a friend >:(`)
+                channel.send(`😴 <@737633914146914354> Turn all devices off to sleep by ${sleeptimerhour + 1}:${sleeptimerminute}! Also, unblock me or re-add me as a friend >:(`)
             })
         }
     }
