@@ -161,7 +161,7 @@ setInterval(async () => {
     var sleeptimer = new Date()
     var sleeptimerhour = sleeptimer.getHours()
     var sleeptimerminute = sleeptimer.getMinutes()
-    if (sleeptimerhour === 22) {
+    if (sleeptimerhour >= 22) {
         if (tadhg.presence.status !== 'offline') {
             await db.set("tadhgsleep", "false")
             tadhg.send(`😴 <@737633914146914354> Turn all devices off to sleep by ${sleeptimerhour + 1}:${sleeptimerminute}! If you need help sleeping, try <p sleep sounds 1h in Gamers.`)
@@ -193,7 +193,7 @@ setInterval(async () => {
             })
         }
     }
-}, 300000)
+}, 60000)
 
 client.on('ready', async () => {
     console.log(`Logged in as ${client.user.tag}!`)
