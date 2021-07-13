@@ -156,45 +156,6 @@ const distube = new Distube(client, {
     emitNewSongOnly: true
 })
 
-setInterval(async () => {
-    var tadhg = client.users.cache.get("737633914146914354")
-    var sleeptimer = new Date()
-    var sleeptimerhour = sleeptimer.getHours()
-    var sleeptimerminute = sleeptimer.getMinutes()
-    if (sleeptimerhour >= 22) {
-        if (tadhg.presence.status !== 'offline') {
-            await db.set("tadhgsleep", "false")
-            tadhg.send(`😴 <@737633914146914354> Turn all devices off to sleep by ${sleeptimerhour + 1}:${sleeptimerminute}! If you need help sleeping, try <p sleep sounds 1h in Gamers.`)
-            .catch(() => {
-                var server = client.guilds.cache.get("760129849154338827")
-                var channel = server.channels.cache.get("760130133658566667")
-                channel.send(`😴 <@737633914146914354> Turn all devices off to sleep by ${sleeptimerhour + 1}:${sleeptimerminute}! Also, unblock me or re-add me as a friend >:(`)
-            })
-        } else {
-            if (await db.get("tadhgsleep") === 'true') return;
-            tadhg.send(`😴 <@737633914146914354> Turn all devices off to sleep by ${sleeptimerhour + 1}:${sleeptimerminute}! If you are going to sleep, please reply with stop. If you need help sleeping, try <p sleep sounds 1h in Gamers`)
-            .then((msg) => {
-                const filter = m => m.content === 'stop'
-                msg.channel.createMessageCollector(filter, {
-                    time: 120000,
-                    max: 1,
-                    errors: ['time']
-                })
-                .then(async (messages) => {
-                    if (messages.first().content === 'stop') {
-                        await db.set("tadhgsleep", true)
-                    }
-                })
-            })
-            .catch(() => {
-                var server = client.guilds.cache.get("760129849154338827")
-                var channel = server.channels.cache.get("760130133658566667")
-                channel.send(`😴 <@737633914146914354> Turn all devices off to sleep by ${sleeptimerhour + 1}:${sleeptimerminute}! Also, unblock me or re-add me as a friend >:(`)
-            })
-        }
-    }
-}, 60000)
-
 client.on('ready', async () => {
     console.log(`Logged in as ${client.user.tag}!`)
     new WOKcommands(client, 'commands', 'features')
